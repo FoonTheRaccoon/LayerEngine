@@ -1,5 +1,5 @@
 #################################################################################################################################################
-# Layer Engine Cmake Project Entry
+# Layer Engine Project Entry
 #################################################################################################################################################
 cmake_minimum_required(VERSION 3.20.0)
 project(
@@ -13,10 +13,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 
 # Clang specific stuff
-#if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-#	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-switch-enum -Wno-nullability-completeness -Wno-unused-variable -Wno-unused-private-field -Wno-format-security" 
-#	)
-#endif()
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-nullability-completeness -Wno-format-security -Wno-unused-variable -Wno-unused-private-field" )
+endif()
 
 
 #Send executables, .dll/.so's, and .lib's to top level Bin folder

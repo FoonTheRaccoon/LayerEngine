@@ -1,37 +1,46 @@
 #################################################################################################################################################
 # Layer Engine Editor Executable
 #################################################################################################################################################
-set(EDITOR_EXE "LayerEditor")
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(EDITOR_EXE "LayerEditor_Debug")
-elseif(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-    set(EDITOR_EXE "LayerEditor_RelWithDebInfo")
-elseif(CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
-    set(EDITOR_EXE "LayerEditor_MinSizeRel")
-endif()
+#if(CMAKE_BUILD_TYPE STREQUAL "Release")
+#    add_compile_options(-O3)
+#elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+#    add_compile_options(-g -O0)
+#elseif(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+#    add_compile_options(-O2 -g)
+#elseif(CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
+#    add_compile_options(-Os)
+#endif()
 
 #if(WIN32)
-#	add_executable(${EDITOR_EXE} WIN32 main.cpp)
+#	add_executable(LayerEditor WIN32 main.cpp)
 #else(WIN32)
-    add_executable(${EDITOR_EXE} main.cpp)
+    add_executable(LayerEditor main.cpp)
 #endif(WIN32)
+
+target_compile_definitions(LayerEditor PUBLIC
+    LAYER_EDITOR
+    LAYER_USE_LIVE_LOGGER
+    LAYER_USE_VERBOSE_LOGGER
+    LAYER_USE_VALIDATION_LAYERS
+    LAYER_DEBUG
+)
 
 
 # Includes
-#target_include_directories(${EDITOR_EXE} PUBLIC
+#target_include_directories(LayerEditor PUBLIC
 #    
 #)
 
 # Header
-#target_sources(${EDITOR_EXE} PUBLIC 
+#target_sources(LayerEditor PUBLIC 
 #
 #)
 
 # Source
-#target_sources(${EDITOR_EXE} PRIVATE 
+#target_sources(LayerEditorPRIVATE 
 #    
 #)
 
 
-target_link_libraries(${EDITOR_EXE} LayerEngine)
+target_link_libraries(LayerEditor LayerEngine)
