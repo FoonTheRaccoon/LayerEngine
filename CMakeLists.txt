@@ -35,7 +35,7 @@ else()
 	if(CMAKE_BUILD_TYPE STREQUAL "Release")
 		add_compile_options(-O3 -mavx2)
 	elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
-		add_compile_options(-g -O0)
+		add_compile_options(-g -O0 -ftime-trace)
 	elseif(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
 		add_compile_options(-O2 -g -mavx2)
 	elseif(CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
@@ -47,6 +47,9 @@ endif()
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-nullability-completeness -Wno-format-security -Wno-unused-variable -Wno-unused-private-field" )
 endif()
+
+# Benchmark Compile Time
+#set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CMAKE_COMMAND} -E time")
 
 # Send executables, .dll/.so's, and .lib's to top level Bin folder
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/Bin")

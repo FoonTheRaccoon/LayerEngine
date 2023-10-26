@@ -75,7 +75,7 @@ void Logger::PrintLog(LogSeverityLevel severityLevel, const char* message)
 	{
 		if constexpr (GlobalConstants::bOnWindows)
 		{
-			MessageBox(NULL, message, "Fatal Error", MB_ICONERROR | MB_OK);
+			MessageBoxA(NULL, message, "Fatal Error", MB_ICONERROR | MB_OK);
 		}
 
 		Logger::shutdownBroadcaster.Broadcast();
@@ -86,7 +86,7 @@ void Logger::PrintLog(LogSeverityLevel severityLevel, const char* message)
 	{
 		if constexpr (GlobalConstants::bOnWindows)
 		{
-			MessageBox(NULL, message, "Error", MB_ICONERROR | MB_OK);
+			MessageBoxA(NULL, message, "Error", MB_ICONERROR | MB_OK);
 		}
 	}
 }

@@ -9,9 +9,9 @@ AddIconToBinary(ICON_SOURCE ICONS ${CMAKE_SOURCE_DIR}/EditorResources/Textures/I
 
 # Build executable based on platform
 if(WIN32)
-	add_executable(LayerEditor WIN32 main.cpp)
+	add_executable(LayerEditor WIN32 main.cpp ${ICON_SOURCE})
 elseif(APPLE)
-    add_executable(LayerEditor MACOSX_BUNDLE main.cpp)
+    add_executable(LayerEditor MACOSX_BUNDLE main.cpp ${ICON_SOURCE})
 else()
     add_executable(LayerEditor main.cpp)
 endif()
@@ -40,7 +40,7 @@ target_sources(LayerEditor PUBLIC ${EDITOR_HEADER})
 
 # Editor Source
 file(GLOB_RECURSE EDITOR_SOURCE *.cpp)
-target_sources(LayerEditor PUBLIC ${EDITOR_SOURCE} ${ICON_SOURCE})
+target_sources(LayerEditor PUBLIC ${EDITOR_SOURCE})
 
 
 

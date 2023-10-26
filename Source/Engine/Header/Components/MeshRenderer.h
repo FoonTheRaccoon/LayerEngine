@@ -1,16 +1,16 @@
 #pragma once
- 
-#include "../Data/Mesh.h"
-#include "../Render/Vulkan/GraphicsPipeline.h"
+#include "EngUtils.h"
+#include "MeshData.h"
+#include "GraphicsPipeline.h"
 
 class MeshRenderer
 {
 public:
-	MeshRenderer(const GraphicsPipeline& graphicsPipeline);
+	MeshRenderer(const GraphicsPipeline& graphicsPipeline) {}
 
 private:
 
-	Mesh m_Mesh;
-	const GraphicsPipeline& m_GraphicsPipeline;
+	// MeshData m_Mesh = {};
+	// const GraphicsPipeline& m_GraphicsPipeline;
 };
 

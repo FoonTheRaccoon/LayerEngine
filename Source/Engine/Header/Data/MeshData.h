@@ -1,9 +1,8 @@
 #pragma once
- 
-#include "EngUtils.h"
+ #include "EngUtils.h"
 
 
-struct Mesh 
+struct MeshData 
 {
 	// FRONT_FACE_COUNTER_CLOCKWISE
 	T_vector<glm::vec3, MT_GRAPHICS> verts = 

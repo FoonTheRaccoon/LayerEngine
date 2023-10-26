@@ -21,6 +21,10 @@
 // -GLFW DEFINES-
 #define GLFW_INCLUDE_NONE	// We will manually include our Vulkan API path
 
+// --IMGUI--
+// -IMGUI DEFINES-
+#define IMGUI_DEFINE_MATH_OPERATORS
+
 // --GLM--
 // -GLM DEFINES-
 // Base Behavior/Build

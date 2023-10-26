@@ -1,8 +1,7 @@
- 
-#include "MeshRenderer.h"
+ #include "MeshRenderer.h"
 
-MeshRenderer::MeshRenderer(const GraphicsPipeline& graphicsPipeline)
-	: m_GraphicsPipeline(graphicsPipeline)
-{
-
-}
+//MeshRenderer::MeshRenderer(const GraphicsPipeline& graphicsPipeline)
+//	: m_GraphicsPipeline(graphicsPipeline)
+//{
+//
+//}
