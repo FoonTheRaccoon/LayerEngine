@@ -70,13 +70,13 @@ target_link_libraries(LayerEngine INTERFACE glm)
 
 # ImGui (Source)
 file(GLOB ImGui_SRC ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/imgui/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/imgui/*.h)
-add_library(ImGui STATIC ${ImGui_SRC})
-target_include_directories(ImGui PUBLIC 
+add_library(ImGui INTERFACE ${ImGui_SRC})
+target_include_directories(ImGui INTERFACE 
     ThirdParty                  # vulkan/vulkan.h
     ThirdParty/glfw/include     # GLFW/glfw3.h
 )
 target_link_libraries(LayerEngine INTERFACE ImGui)
 
-# VMA (Library)
+# VMA (Source)
 add_library(vma INTERFACE ThirdParty/vma/vk_mem_alloc.h)
 target_link_libraries(LayerEngine INTERFACE vma)

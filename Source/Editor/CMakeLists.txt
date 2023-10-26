@@ -2,21 +2,19 @@
 # Layer Engine Editor Executable
 #################################################################################################################################################
 
-#if(CMAKE_BUILD_TYPE STREQUAL "Release")
-#    add_compile_options(-O3)
-#elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
-#    add_compile_options(-g -O0)
-#elseif(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-#    add_compile_options(-O2 -g)
-#elseif(CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
-#    add_compile_options(-Os)
-#endif()
+# Add icons (TODO: Add Linux Icon Loading)
+set(ICON_SOURCE)
+include(${CMAKE_SOURCE_DIR}/CMake/AddIconToBinary.cmake)
+AddIconToBinary(ICON_SOURCE ICONS ${CMAKE_SOURCE_DIR}/EditorResources/Textures/Icon/EditorIcon.ico ${CMAKE_SOURCE_DIR}/EditorResources/Textures/Icon/EditorIcon.icns)
 
-#if(WIN32)
-#	add_executable(LayerEditor WIN32 main.cpp)
-#else(WIN32)
+if(WIN32)
+	add_executable(LayerEditor WIN32 main.cpp)
+elseif(APPLE)
+    add_executable(LayerEditor MACOSX_BUNDLE main.cpp)
+else()
     add_executable(LayerEditor main.cpp)
-#endif(WIN32)
+endif()
+
 
 target_compile_definitions(LayerEditor PUBLIC
     LAYER_EDITOR
@@ -26,21 +24,40 @@ target_compile_definitions(LayerEditor PUBLIC
     LAYER_DEBUG
 )
 
+target_link_libraries(LayerEditor LayerEngine)
 
 # Includes
-#target_include_directories(LayerEditor PUBLIC
-#    
-#)
+target_include_directories(LayerEditor PUBLIC
+    Header
+    Header/EditorUtilities
+)
 
-# Header
-#target_sources(LayerEditor PUBLIC 
-#
-#)
+# Editor Headers
+file(GLOB_RECURSE EDITOR_HEADER *.h)
+target_sources(LayerEditor PUBLIC ${EDITOR_HEADER})
 
-# Source
-#target_sources(LayerEditorPRIVATE 
-#    
-#)
+# Editor Source
+file(GLOB_RECURSE EDITOR_SOURCE *.cpp)
+target_sources(LayerEditor PUBLIC ${EDITOR_SOURCE} ${ICON_SOURCE})
 
 
-target_link_libraries(LayerEditor LayerEngine)
+
+#################################################################################################################################################
+# Layer Engine Editor Third Party
+#################################################################################################################################################
+
+# Editor Third Party Includes
+target_include_directories(LayerEditor PUBLIC
+    ThirdParty
+    ThirdParty/assimp
+    ThirdParty/stb
+)
+
+# ASSIMP (Static)
+
+
+# STB (Source)
+
+
+
+
