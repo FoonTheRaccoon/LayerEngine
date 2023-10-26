@@ -35,7 +35,7 @@ else()
 	if(CMAKE_BUILD_TYPE STREQUAL "Release")
 		add_compile_options(-O3 -mavx2)
 	elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
-		add_compile_options(-g -O0 -ftime-trace)
+		add_compile_options(-g -O0)
 	elseif(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
 		add_compile_options(-O2 -g -mavx2)
 	elseif(CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
@@ -45,7 +45,11 @@ endif()
 
 # Clang specific stuff
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-nullability-completeness -Wno-format-security -Wno-unused-variable -Wno-unused-private-field" )
+	add_compile_options(-ftime-trace 
+	#-Wno-nullability-completeness
+	#-Wno-unused-variable 
+	#-Wno-unused-private-field
+	)
 endif()
 
 # Benchmark Compile Time

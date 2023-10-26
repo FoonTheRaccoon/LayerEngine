@@ -4,12 +4,6 @@
 add_library(LayerEngine STATIC)
 set_target_properties(LayerEngine PROPERTIES LINKER_LANGUAGE CXX)
 
-# Engine PCH for all third party includes
-target_compile_definitions(LayerEngine PRIVATE 
-VMA_IMPLEMENTATION # VMA needs a define in a single .cpp file that doesn't play nice with pch, so we do it here.
-) 
-target_precompile_headers(LayerEngine PUBLIC ThirdParty/ThirdParty.h)
-
 # Engine Headers
 file(GLOB_RECURSE ENGINE_HEADER Header/*.h)
 target_sources(LayerEngine PUBLIC ${ENGINE_HEADER})
@@ -17,7 +11,6 @@ target_sources(LayerEngine PUBLIC ${ENGINE_HEADER})
 # Engine Source
 file(GLOB_RECURSE ENGINE_SOURCE Source/*.cpp)
 target_sources(LayerEngine PUBLIC ${ENGINE_SOURCE})
-
 
 # Engine Includes
 target_include_directories(LayerEngine PUBLIC
@@ -38,11 +31,15 @@ target_include_directories(LayerEngine PUBLIC
 )
 
 
-
-
 #################################################################################################################################################
-# Layer Engine Library Third Party
+# Layer Engine Library Third Party And PCH
 #################################################################################################################################################
+
+# Engine PCH for all third party includes
+target_compile_definitions(LayerEngine PRIVATE 
+VMA_IMPLEMENTATION # VMA needs a define in a single .cpp file that doesn't play nice with pch, so we do it here.
+) 
+target_precompile_headers(LayerEngine PUBLIC ThirdParty/ThirdParty.h)
 
 # Engine Third Party Includes
 target_include_directories(LayerEngine PUBLIC

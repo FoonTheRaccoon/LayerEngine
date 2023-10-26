@@ -139,7 +139,7 @@ void Logger::_DrawLogUI()
 			for (const LogLine& logLine : _logLineBuffer)
 			{
 				if (filter.PassFilter(logLine.text.c_str()))
-					ImGui::TextColored(logLine.color, logLine.text.c_str());
+					ImGui::TextColored(logLine.color, "%s", logLine.text.c_str());
 			}
 		}
 		else
@@ -159,7 +159,7 @@ void Logger::_DrawLogUI()
 			{
 				for (int lineNumber = clipper.DisplayStart; lineNumber < clipper.DisplayEnd; lineNumber++)
 				{
-					ImGui::TextColored(_logLineBuffer[lineNumber].color, _logLineBuffer[lineNumber].text.c_str());
+					ImGui::TextColored(_logLineBuffer[lineNumber].color, "%s",_logLineBuffer[lineNumber].text.c_str());
 				}
 			}
 			clipper.End();
