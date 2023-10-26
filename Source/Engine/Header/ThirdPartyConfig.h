@@ -32,6 +32,7 @@
 #define GLM_FORCE_INLINE				// Forces the compiler to inline GLM code.
 #define GLM_ENABLE_EXPERIMENTAL			// Allows use of experimental GTX extension headers
 
+
 // SIMD
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES // Pads vec memory to set length. Required for SIMD
 #if defined(_WIN64) || (defined(__linux__) && !defined(__ANDROID__))

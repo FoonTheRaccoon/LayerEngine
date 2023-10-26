@@ -13,7 +13,6 @@ void Run()
 	Editor editor;
 
 	editor.StartUp();
-
 	EditorFileManager::RegisterFileExtension();
 
 	editor.RunGameLoop();

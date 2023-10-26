@@ -1,19 +1,20 @@
 #################################################################################################################################################
 # Layer Engine Library
 #################################################################################################################################################
-add_library(LayerEngine INTERFACE)
+add_library(LayerEngine STATIC)
 set_target_properties(LayerEngine PROPERTIES LINKER_LANGUAGE CXX)
 
 # Engine Headers
-file(GLOB_RECURSE ENGINE_HEADER *.h)
+file(GLOB_RECURSE ENGINE_HEADER Header/*.h)
 target_sources(LayerEngine PUBLIC ${ENGINE_HEADER})
 
 # Engine Source
-file(GLOB_RECURSE ENGINE_SOURCE *.cpp)
+file(GLOB_RECURSE ENGINE_SOURCE Source/*.cpp)
 target_sources(LayerEngine PUBLIC ${ENGINE_SOURCE})
 
+
 # Engine Includes
-target_include_directories(LayerEngine INTERFACE
+target_include_directories(LayerEngine PUBLIC
     Header
     Header/Components
     Header/Data
@@ -37,10 +38,11 @@ target_include_directories(LayerEngine INTERFACE
 #################################################################################################################################################
 
 # Engine Third Party Includes
-target_include_directories(LayerEngine INTERFACE
+target_include_directories(LayerEngine PUBLIC
     ThirdParty
     ThirdParty/vulkan
     ThirdParty/glm
+    ThirdParty/glfw/include
     ThirdParty/glfw/include/GLFW
     ThirdParty/imgui
     ThirdParty/vma
@@ -48,35 +50,33 @@ target_include_directories(LayerEngine INTERFACE
 
 # Vulkan (Library)
 find_library(Vulkan_LIBRARY NAMES vulkan-1 PATHS "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/vulkan")
-target_link_libraries(LayerEngine INTERFACE ${Vulkan_LIBRARY})
+target_link_libraries(LayerEngine ${Vulkan_LIBRARY})
 
 # GLFW (Library)
-if(MSVC)
-    # Non MSVC compilers have an issue linking with gdi32 TODO: Figure out how to link gdi32 with cmake
-    find_library(GLFW_LIBRARY NAMES glfw3 PATHS "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/GLFW/lib")
-    target_link_libraries(LayerEngine INTERFACE ${GLFW_LIBRARY})
+if(MINGW)
+    # MinGW needs specfic libglfw3.a file
+    find_library(GLFW_LIBRARY NAMES libglfw3 PATHS "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/glfw/lib-mingw-w64")
+    target_link_libraries(LayerEngine ${GLFW_LIBRARY})
 else()
-    set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-    set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-    set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-    add_subdirectory(ThirdParty/glfw)
-    target_link_libraries(LayerEngine INTERFACE glfw)
+    find_library(GLFW_LIBRARY NAMES glfw3 PATHS "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/glfw/lib-vc2022")
+    target_link_libraries(LayerEngine ${GLFW_LIBRARY})
 endif()
 
-
-# GLM (CMake)
-add_subdirectory(ThirdParty/glm)
-target_link_libraries(LayerEngine INTERFACE glm)
+# GLM (Source)
+file(GLOB_RECURSE GLM_SRC 
+    ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/glm/*.cpp 
+    ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/glm/*.h 
+    ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/glm/*.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/glm/*.inl
+)
+target_sources(LayerEngine PUBLIC ${GLM_SRC})
 
 # ImGui (Source)
-file(GLOB ImGui_SRC ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/imgui/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/imgui/*.h)
-add_library(ImGui INTERFACE ${ImGui_SRC})
-target_include_directories(ImGui INTERFACE 
-    ThirdParty                  # vulkan/vulkan.h
-    ThirdParty/glfw/include     # GLFW/glfw3.h
+file(GLOB ImGui_SRC 
+    ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/imgui/*.cpp 
+    ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/imgui/*.h
 )
-target_link_libraries(LayerEngine INTERFACE ImGui)
+target_sources(LayerEngine PUBLIC ${ImGui_SRC})
 
 # VMA (Source)
-add_library(vma INTERFACE ThirdParty/vma/vk_mem_alloc.h)
-target_link_libraries(LayerEngine INTERFACE vma)
+target_sources(LayerEngine PUBLIC ThirdParty/vma/vk_mem_alloc.h)

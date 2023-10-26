@@ -7,6 +7,7 @@ set(ICON_SOURCE)
 include(${CMAKE_SOURCE_DIR}/CMake/AddIconToBinary.cmake)
 AddIconToBinary(ICON_SOURCE ICONS ${CMAKE_SOURCE_DIR}/EditorResources/Textures/Icon/EditorIcon.ico ${CMAKE_SOURCE_DIR}/EditorResources/Textures/Icon/EditorIcon.icns)
 
+# Build executable based on platform
 if(WIN32)
 	add_executable(LayerEditor WIN32 main.cpp)
 elseif(APPLE)
@@ -15,8 +16,8 @@ else()
     add_executable(LayerEditor main.cpp)
 endif()
 
-
-target_compile_definitions(LayerEditor PUBLIC
+# Set which Engine features to enable
+target_compile_definitions(LayerEngine PUBLIC
     LAYER_EDITOR
     LAYER_USE_LIVE_LOGGER
     LAYER_USE_VERBOSE_LOGGER
@@ -24,6 +25,7 @@ target_compile_definitions(LayerEditor PUBLIC
     LAYER_DEBUG
 )
 
+# Link to the Engine
 target_link_libraries(LayerEditor LayerEngine)
 
 # Includes
