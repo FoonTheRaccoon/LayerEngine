@@ -45,15 +45,12 @@ endif()
 
 # Clang specific stuff
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-	add_compile_options(-ftime-trace 
-	#-Wno-nullability-completeness
+	add_compile_options(-ftime-trace
+	-Wno-nullability-completeness
 	#-Wno-unused-variable 
 	#-Wno-unused-private-field
 	)
 endif()
-
-# Benchmark Compile Time
-#set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CMAKE_COMMAND} -E time")
 
 # Send executables, .dll/.so's, and .lib's to top level Bin folder
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/Bin")

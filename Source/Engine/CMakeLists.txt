@@ -11,7 +11,6 @@ target_sources(LayerEngine PUBLIC ${ENGINE_HEADER})
 # Engine Source
 file(GLOB_RECURSE ENGINE_SOURCE Source/*.cpp)
 target_sources(LayerEngine PUBLIC ${ENGINE_SOURCE})
-
 # Engine Includes
 target_include_directories(LayerEngine PUBLIC
     Header
@@ -36,9 +35,6 @@ target_include_directories(LayerEngine PUBLIC
 #################################################################################################################################################
 
 # Engine PCH for all third party includes
-target_compile_definitions(LayerEngine PRIVATE 
-VMA_IMPLEMENTATION # VMA needs a define in a single .cpp file that doesn't play nice with pch, so we do it here.
-) 
 target_precompile_headers(LayerEngine PUBLIC ThirdParty/ThirdParty.h)
 
 # Engine Third Party Includes
@@ -83,4 +79,7 @@ file(GLOB ImGui_SRC
 target_sources(LayerEngine PUBLIC ${ImGui_SRC})
 
 # VMA (Source)
-target_sources(LayerEngine PUBLIC ThirdParty/vma/vk_mem_alloc.h)
+target_sources(LayerEngine 
+    PRIVATE ThirdParty/vma/vma_imp.cpp # VMA needs a define in a single .cpp file that doesn't play nice with pch, so we do it here
+    PUBLIC ThirdParty/vma/vk_mem_alloc.h
+)

@@ -5,12 +5,6 @@
 
 class MeshRenderer
 {
-public:
-	MeshRenderer(const GraphicsPipeline& graphicsPipeline) {}
-
-private:
-
-	// MeshData m_Mesh = {};
-	// const GraphicsPipeline& m_GraphicsPipeline;
+	
 };
 

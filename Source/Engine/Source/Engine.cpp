@@ -1,11 +1,10 @@
- #include "Engine.h"
+#include "Engine.h"
 
 Engine::Engine()
 {
 	// Init all engine utilities
 	EngineUtilities::InitilizeEngineUtilities();
 
-	
 }
 
 Engine::~Engine()

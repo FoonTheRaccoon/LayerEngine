@@ -1,5 +1,9 @@
 #pragma once
 
+#ifndef THIRD_PARTY_H
+#define THIRD_PARTY_H
+
+
 // --THIRD PARTY CONFIG/DEFINES/MACROS--
 // We set all our definitions to configure the third party libraries before we include them.
 #include "ThirdPartyConfig.h"
@@ -59,3 +63,6 @@
 // --GLM--
 #include "glm.hpp"							// Math library
 #include "gtc\matrix_transform.hpp"
+
+
+#endif // THIRD_PARTY_H
