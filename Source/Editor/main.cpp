@@ -10,13 +10,12 @@ void Run()
 
 	ImGuiManager::imguiConfigFilePath.AppendMany(EditorFileManager::editorCoreDirectory, "EditorResources\\Config\\");
 
-	Editor editor;
 
-	editor.StartUp();
+	Editor::StartUp();
 	EditorFileManager::RegisterFileExtension();
 
-	editor.RunGameLoop();
-	editor.Shutdown();
+	Editor::RunGameLoop();
+	Editor::Shutdown();
 }
 
 

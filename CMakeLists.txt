@@ -11,6 +11,40 @@ project(
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# Reccomended non MSVC Windows toolchain: msys2 mingw-w64-clang-x86_64-clang + LLD + Ninja + ccache
+
+# Check for recommended toolchain if not MSVC
+if(NOT MSVC)
+
+	# Set the generator to Ninja if it's available
+	find_program(NINJA_EXE ninja)
+	if(NINJA_EXE)
+		set(CMAKE_GENERATOR "Ninja" CACHE INTERNAL "" FORCE)
+		message(STATUS "Ninja is available, using Ninja as the generator")
+	else()
+		message(STATUS "Ninja is not available, using the default generator")
+	endif()
+
+	# Use lld linker if available
+	find_program(LLD_EXE lld)
+	if(LLD_EXE)
+		add_compile_options(-fuse-ld=lld)
+		message(STATUS "LLD is available, using LLD as the linker")
+	else()
+		message(STATUS "LLD is not available, using the default linker")
+	endif()
+
+	# Use ccache if available
+	find_program(CCACHE_EXE ccache)
+	if(CCACHE_EXE)
+		set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_EXE}")
+		message(STATUS "Using CCache")
+	else()
+		message(STATUS "CCache not available")
+	endif()
+
+endif(NOT MSVC)
+
 if(MSVC)
 	if(CMAKE_BUILD_TYPE STREQUAL "Release")
 		add_compile_options(/O2 /arch:AVX2)

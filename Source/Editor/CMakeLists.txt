@@ -16,6 +16,7 @@ else()
     add_executable(LayerEditor main.cpp)
 endif()
 
+
 # Set which Engine features to enable
 target_compile_definitions(LayerEngine PUBLIC
     LAYER_EDITOR
@@ -25,23 +26,29 @@ target_compile_definitions(LayerEngine PUBLIC
     LAYER_DEBUG
 )
 
-# Link to the Engine
+# Link Editor to the Engine
 target_link_libraries(LayerEditor LayerEngine)
 
-# Includes
+# Editor Includes
 target_include_directories(LayerEditor PUBLIC
-    Header
-    Header/EditorUtilities
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    Core
+    EditorUtilities
 )
 
-# Editor Headers
-file(GLOB_RECURSE EDITOR_HEADER *.h)
-target_sources(LayerEditor PUBLIC ${EDITOR_HEADER})
+# Editor Source and Headers
+target_sources(LayerEditor PRIVATE
+"_cpp/Editor.cpp"
 
-# Editor Source
-file(GLOB_RECURSE EDITOR_SOURCE *.cpp)
-target_sources(LayerEditor PUBLIC ${EDITOR_SOURCE})
+PUBLIC # Headers
+"Core/Editor.h"
 
+"EditorUtilities/Helpers/EditorFileManager.h"
+"EditorUtilities/EditorUtils.h"
+
+"_ThirdParty/EditorThirdParty.h"
+"_ThirdParty/EditorThirdPartyConfig.h"
+)
 
 
 #################################################################################################################################################
@@ -50,9 +57,9 @@ target_sources(LayerEditor PUBLIC ${EDITOR_SOURCE})
 
 # Editor Third Party Includes
 target_include_directories(LayerEditor PUBLIC
-    ThirdParty
-    ThirdParty/assimp
-    ThirdParty/stb
+    _ThirdParty
+    _ThirdParty/assimp
+    _ThirdParty/stb
 )
 
 # ASSIMP (Static)
