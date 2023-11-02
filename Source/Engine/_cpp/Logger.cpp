@@ -1,7 +1,9 @@
 #include "Logger.h"
-#include "GlobalConstants.h"
 #include "ImGuiManager.h"
 #include "FileHelper.h"
+
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "misc-no-recursion"
 
 // Private
 namespace Logger
@@ -15,19 +17,17 @@ namespace Logger
 	// Path relative to the current working directory to place the session log
 	constexpr const char* _sessionLogPath = "Logs\\SessionLog.txt";
 
-	// 
-
-	void _OpenLogFile();
+	// Dump the _sessionLogBuffer into the _sessionLogPath and open the txt file in an external viewer
+	void _OpenSessionLogFile();
+    
+    //
 	void _DrawLogUI();
 }
 
-void Logger::InitilizeLogging()
+void Logger::InitializeLogging()
 {
 	FileHelper::CreateFolderIfAbsent("Logs\\");
-	if constexpr (GlobalConstants::bUsingLiveLogger)
-	{
-		REGISTER_EDITOR_UI(nullptr, Logger::_DrawLogUI);
-	}
+    REGISTER_EDITOR_UI_WINDOW(nullptr, Logger::_DrawLogUI)
 }
 
 void Logger::ShutdownLogging()
@@ -47,6 +47,12 @@ void Logger::AddToSessionLogFile(const T_string& message)
 
 void Logger::PrintLog(LogSeverityLevel severityLevel, const char* message)
 {
+    if(severityLevel >= LOG_SEVERITY_MAX)
+    {
+        LOG_ERROR("severityLevel >= LOG_SEVERITY_MAX")
+        return;
+    }
+    
 	constexpr const char* severityStrings[] = {
 		"[FATAL]: ",
 		"[ERROR]: ",
@@ -56,6 +62,7 @@ void Logger::PrintLog(LogSeverityLevel severityLevel, const char* message)
 		"[DEBUG]: ",
 		"" // OTHER
 		};
+  
 
 	constexpr ImVec4 severityColors[] = {
 		{ 0.45f, 0.0f, 0.0f, 1.0f },	// FATAL == Dark Red
@@ -66,23 +73,27 @@ void Logger::PrintLog(LogSeverityLevel severityLevel, const char* message)
 		{ 0.29f, 0.87f, 1.0f, 1.0f },	// DEBUG == Light Blue
 		{ 0.0f, 0.80f, 0.0f, 1.0f }		// OTHER == Green
 	};
+ 
 
 	const T_string printBuffer = T_string(severityStrings[severityLevel], message);
 	_sessionLogBuffer.AppendMany(printBuffer, "\n");
-
-	if constexpr (GlobalConstants::bUsingLiveLogger)
-	{
-		_liveLogLineBuffer.emplace_back(severityColors[severityLevel], printBuffer);
-	}
+    
+    #if LAYER_USE_LIVE_LOGGER
+        _liveLogLineBuffer.emplace_back(severityColors[severityLevel], printBuffer);
+    #endif
 
 
 	// TODO: Update this to pop up messages on Linux and MacOS
 	if (severityLevel == LOG_SEVERITY_FATAL)
 	{
-		if constexpr (GlobalConstants::bOnWindows)
-		{
-			MessageBoxA(NULL, message, "Fatal Error", MB_ICONERROR | MB_OK);
-		}
+        #if LAYER_PLATFORM_WINDOWS
+            MessageBoxA(nullptr, message, "Fatal Error", MB_ICONERROR | MB_OK);
+        #elif LAYER_PLATFORM_LINUX
+            //TODO: Implement Linux version
+        #elif LAYER_PLATFORM_APPLE
+            //TODO: Implement Apple version
+        #endif
+		
 
 		Logger::fatalShutdownBroadcaster.Broadcast();
 		ShutdownLogging();
@@ -90,10 +101,13 @@ void Logger::PrintLog(LogSeverityLevel severityLevel, const char* message)
 	}
 	else if (severityLevel == LOG_SEVERITY_ERROR)
 	{
-		if constexpr (GlobalConstants::bOnWindows)
-		{
-			MessageBoxA(NULL, message, "Error", MB_ICONERROR | MB_OK);
-		}
+        #if LAYER_PLATFORM_WINDOWS
+            MessageBoxA(nullptr, message, "Error", MB_ICONERROR | MB_OK);
+        #elif LAYER_PLATFORM_LINUX
+            //TODO: Implement Linux version
+        #elif LAYER_PLATFORM_APPLE
+            //TODO: Implement Apple version
+        #endif
 	}
 }
 
@@ -102,7 +116,8 @@ void Logger::PrintLog(LogSeverityLevel severityLevel, const T_string& message)
 	PrintLog(severityLevel, message.c_str());
 }
 
-void Logger::_OpenLogFile()
+
+void Logger::_OpenSessionLogFile()
 {
 	FileHelper::WriteStringToFile(_sessionLogBuffer, _sessionLogPath);
 	FileHelper::OpenFileInExternalProgram(_sessionLogPath);
@@ -116,14 +131,14 @@ void Logger::_DrawLogUI()
 
 	bool openLog = ImGui::Button("Open Session Log");
 	if (openLog)
-		_OpenLogFile();
+        _OpenSessionLogFile();
 
 	ImGui::SameLine();
 	bool closeEditor = ImGui::Button("Close Editor | Open Log");
 	if (closeEditor)
 	{
 		Logger::fatalShutdownBroadcaster.Broadcast();
-		_OpenLogFile();
+        _OpenSessionLogFile();
 		std::exit(EXIT_SUCCESS);
 	}
 
@@ -153,14 +168,14 @@ void Logger::_DrawLogUI()
 			// Here we instead demonstrate using the clipper to only process lines that are within the visible area.
 			// If you have tens of thousands of items and their processing cost is non-negligible, coarse clipping them
 			// on your side is recommended. Using ImGuiListClipper requires
-			// - A) random access into your data
-			// - B) items all being the  same height,
+			// - A: random access into your data
+			// - B: items all being the  same height,
 			// both of which we can handle since we have an array pointing to the beginning of each line of text.
 			// When using the filter (in the block of code above) we don't have random access into the data to display
 			// anymore, which is why we don't use the clipper. Storing or skimming through the search result would make
 			// it possible (and would be recommended if you want to search through tens of thousands of entries).
 			ImGuiListClipper clipper;
-			clipper.Begin((u32)_liveLogLineBuffer.size());
+			clipper.Begin(static_cast<i32>(_liveLogLineBuffer.size()));
 			while (clipper.Step())
 			{
 				for (int lineNumber = clipper.DisplayStart; lineNumber < clipper.DisplayEnd; lineNumber++)
@@ -182,5 +197,8 @@ void Logger::_DrawLogUI()
 	ImGui::End();
 }
 
+
+
+#pragma clang diagnostic pop
 
 

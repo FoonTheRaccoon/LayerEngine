@@ -1,7 +1,74 @@
 #################################################################################################################################################
 # Layer Engine Library
 #################################################################################################################################################
-add_library(LayerEngine STATIC)
+add_library(LayerEngine STATIC
+        # Engine Source
+        _cpp/Engine.cpp
+        _cpp/MeshRenderer.cpp
+        _cpp/MeshData.cpp
+        _cpp/Actor.cpp
+        _cpp/Level.cpp
+        _cpp/SubLevel.cpp
+        _cpp/ComponentHandle.cpp
+        _cpp/ECSManager.cpp
+        _cpp/EntityHandle.cpp
+        _cpp/VkBuffersAndImages.cpp
+        _cpp/GraphicsPipeline.cpp
+        _cpp/RenderPass.cpp
+        _cpp/SwapChain.cpp
+        _cpp/VkSetup.cpp
+        _cpp/RenderManager.cpp
+        _cpp/Viewport.cpp
+        _cpp/Timer.cpp
+        _cpp/FileHelper.cpp
+        _cpp/StringHelper.cpp
+        _cpp/Logger.cpp
+        _cpp/LoggingCallbacks.cpp
+        _cpp/GpuMemoryTracker.cpp
+        _cpp/MemoryTracker.cpp
+        _cpp/ImGuiManager.cpp
+        # Engine Headers
+        Engine.h
+
+        Components/ComponentHandle.h
+        Components/MeshRenderer.h
+
+        Entities/EntityHandle.h
+        Entities/Actor.h
+        Entities/Level.h
+        Entities/SubLevel.h
+
+        Managers/ECSManager.h
+        Managers/ImGuiManager.h
+
+        Render/Vulkan/GraphicsPipeline.h
+        Render/Vulkan/RenderPass.h
+        Render/Vulkan/SwapChain.h
+        Render/Vulkan/VkBuffersAndImages.h
+        Render/Vulkan/VkConfig.h
+        Render/Vulkan/VkSetup.h
+        Render/RenderManager.h
+        Render/Viewport.h
+
+        Utilities/Events/Broadcaster.h
+        Utilities/Helpers/FileHelper.h
+        Utilities/Helpers/StringHelper.h
+        Utilities/Helpers/Timer.h
+        Utilities/Logger/Logger.h
+        Utilities/Logger/LoggingCallbacks.h
+        Utilities/Memory/GpuMemoryTracker.h
+        Utilities/Memory/LayerContainers.h
+        Utilities/Memory/LayerMemory.h
+        Utilities/Memory/MemoryTracker.h
+        Utilities/Types/HelperTypes.h
+        Utilities/Types/VkTypes.h
+        Utilities/EngUtils.h
+
+        _ThirdParty/ThirdParty.h
+        _ThirdParty/ThirdPartyConfig.h
+        _ThirdParty/ConstantsAndAliases.h
+)
+
 set_target_properties(LayerEngine PROPERTIES LINKER_LANGUAGE CXX)
 
 # Engine Includes
@@ -19,77 +86,6 @@ target_include_directories(LayerEngine PUBLIC
     Utilities/Logger
     Utilities/Memory
     Utilities/Types
-    Utilities/UI
-)
-
-# Engine Source And Headers
-target_sources(LayerEngine PRIVATE
- "_cpp/Engine.cpp"
- "_cpp/MeshRenderer.cpp"
- "_cpp/MeshData.cpp" 
- "_cpp/Actor.cpp"
- "_cpp/Level.cpp"
- "_cpp/SubLevel.cpp"
- "_cpp/ComponentHandle.cpp"
- "_cpp/ECSManager.cpp"
- "_cpp/EntityHandle.cpp"
- "_cpp/VkBuffersAndImages.cpp"
- "_cpp/GraphicsPipeline.cpp"
- "_cpp/RenderPass.cpp"
- "_cpp/SwapChain.cpp"
- "_cpp/VkSetup.cpp"
- "_cpp/RenderManager.cpp"
- "_cpp/Viewport.cpp"
- "_cpp/Timer.cpp"
- "_cpp/FileHelper.cpp" 
- "_cpp/StringHelper.cpp"
- "_cpp/Logger.cpp"
- "_cpp/LoggingCallbacks.cpp"
- "_cpp/GpuMemoryTracker.cpp"
- "_cpp/MemoryTracker.cpp"
- "_cpp/ImGuiManager.cpp"
-
-PUBLIC #Headers
- "Engine.h"
-
- "Components/MeshRenderer.h"
-
- "Entities/Actor.h"
- "Entities/Level.h"
- "Entities/SubLevel.h"
-
- "Managers/ComponentHandle.h"
- "Managers/ECSManager.h"
- "Managers/EntityHandle.h"
-
- "Render/Vulkan/GraphicsPipeline.h"
- "Render/Vulkan/RenderPass.h"
- "Render/Vulkan/SwapChain.h"
- "Render/Vulkan/VkBuffersAndImages.h"
- "Render/Vulkan/VkConfig.h"
- "Render/Vulkan/VkSetup.h"
- "Render/RenderManager.h"
- "Render/Viewport.h"
-
- "Utilities/Events/Broadcaster.h"
- "Utilities/Helpers/FileHelper.h"
- "Utilities/Helpers/StringHelper.h"
- "Utilities/Helpers/Timer.h"
- "Utilities/Logger/Logger.h"
- "Utilities/Logger/LoggingCallbacks.h"
- "Utilities/Memory/GpuMemoryTracker.h"
- "Utilities/Memory/LayerContainers.h"
- "Utilities/Memory/LayerMemory.h"
- "Utilities/Memory/MemoryTracker.h"
- "Utilities/Types/HelperTypes.h"
- "Utilities/Types/VkTypes.h"
- "Utilities/UI/ImGuiManager.h"
- "Utilities/EngUtils.h"
- "Utilities/GlobalConstants.h"
-
- "_ThirdParty/ThirdParty.h"
- "_ThirdParty/ThirdPartyConfig.h"
- "_ThirdParty/GlobalAliases.h"
 )
 
 
@@ -117,7 +113,7 @@ target_link_libraries(LayerEngine ${Vulkan_LIBRARY})
 
 # GLFW (Library)
 if(MINGW)
-    # MinGW needs specfic libglfw3.a file
+    # MinGW needs specific libglfw3.a file
     find_library(GLFW_LIBRARY NAMES libglfw3 PATHS "${CMAKE_CURRENT_SOURCE_DIR}/_ThirdParty/glfw/lib-mingw-w64")
     target_link_libraries(LayerEngine ${GLFW_LIBRARY})
 else()
@@ -126,13 +122,8 @@ else()
 endif()
 
 # GLM (Source)
-file(GLOB_RECURSE GLM_SRC 
-    ${CMAKE_CURRENT_SOURCE_DIR}/_ThirdParty/glm/*.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/_ThirdParty/glm/*.h 
-    ${CMAKE_CURRENT_SOURCE_DIR}/_ThirdParty/glm/*.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/_ThirdParty/glm/*.inl
-)
-target_sources(LayerEngine PUBLIC ${GLM_SRC})
+add_subdirectory(_ThirdParty/glm)
+target_link_libraries(LayerEngine glm)
 
 # ImGui (Source)
 file(GLOB ImGui_SRC 

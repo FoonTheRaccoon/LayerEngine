@@ -21,7 +21,7 @@ namespace GpuMemoryTracker
 
 
 
-void GpuMemoryTracker::InitilizeGpuMemoryTracker()
+void GpuMemoryTracker::InitializeGpuMemoryTracker()
 {
 	// Set default values for each tag 
 	for (size_t i = 0; i < _gpuMemoryUsage.size(); i++)
@@ -33,7 +33,7 @@ void GpuMemoryTracker::InitilizeGpuMemoryTracker()
 	}
 
 	// Set function for GPU memory usage UI
-	REGISTER_EDITOR_UI(nullptr, GpuMemoryTracker::_DrawGpuMemoryTrackerUI);
+	REGISTER_EDITOR_UI_WINDOW(nullptr, GpuMemoryTracker::_DrawGpuMemoryTrackerUI)
 }
 
 void GpuMemoryTracker::AllocatedGpuMemory(GpuMemoryUsageTag tag, u64 sizeOfAlloc)
@@ -79,18 +79,18 @@ void GpuMemoryTracker::_DrawGpuMemoryTrackerUI()
 
 
 
-		for (u64 row = 0; row < _gpuMemoryUsage.size(); row++)
+		for (MemoryUsageInfo& trackerTag : _gpuMemoryUsage)
 		{
 			ImGui::TableNextRow();
 			// Tag Name
 			ImGui::TableSetColumnIndex(0);
-			ImGui::TextUnformatted(_gpuMemoryUsage[row].tagName);
+			ImGui::TextUnformatted(trackerTag.tagName);
 			// Number of Allocations
 			ImGui::TableSetColumnIndex(1);
-			ImGui::Text("%llu", _gpuMemoryUsage[row].allocations);
+			ImGui::Text("%llu", trackerTag.allocations);
 			// Byte Size
 			ImGui::TableSetColumnIndex(2);
-			ImGui::Text("%.3f%s", _gpuMemoryUsage[row].displaySize, _gpuMemoryUsage[row].sizeLabel);
+			ImGui::Text("%.3f%s", trackerTag.displaySize, trackerTag.sizeLabel);
 
 		}
 		ImGui::EndTable();

@@ -1,6 +1,5 @@
 #pragma once
 #include "ThirdParty.h"
-#include "GlobalConstants.h"
 #include "MemoryTracker.h"
 #include "LayerContainers.h"
 

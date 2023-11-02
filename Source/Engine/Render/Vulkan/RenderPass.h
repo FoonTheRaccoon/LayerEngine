@@ -16,8 +16,8 @@ public:
 	void CreateRenderPass(const VkRef& vkRef, const SwapChain& swapChain);
 	void DestroyRenderPass(const VkRef& vkRef);
 
-	const VkRenderPass GetRenderPass() const { return m_RenderPass; }
-	const VkFramebuffer GetFrameBuffer(u32 index) const;
+	[[nodiscard]] VkRenderPass GetRenderPass() const { return m_RenderPass; }
+	[[nodiscard]] VkFramebuffer GetFrameBuffer(u32 index) const;
 
 private:
 	void CreateAttachmentImageBuffers(const VkRef& vkRef, const SwapChain& swapChain);
@@ -28,7 +28,7 @@ private:
 
 private:
 	VkRenderPass m_RenderPass = {};
-
+ 
 	T_vector<GpuImage, MT_GRAPHICS> m_ColorImages;
 
 	T_vector<GpuImage, MT_GRAPHICS> m_DepthImages;

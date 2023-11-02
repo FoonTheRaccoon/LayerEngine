@@ -8,9 +8,9 @@ struct MemoryUsageInfo
 	MemoryUsageInfo() = default;
 	~MemoryUsageInfo() = default;
 
-	const char* tagName;
-	u64 allocations;
-	u64 size;
+	const char* tagName = "";
+	u64 allocations = 0;
+	u64 size = 0;
 	const char* sizeLabel = " XiB";
 	f32 displaySize = 0.0f;
 
@@ -20,17 +20,17 @@ struct MemoryUsageInfo
 		if (size >= GiB)
 		{
 			sizeLabel = " GiB";
-			displaySize = size / static_cast<f32>(GiB);
+			displaySize = static_cast<f32>(size) / static_cast<f32>(GiB);
 		}
 		else if (size >= MiB)
 		{
 			sizeLabel = " MiB";
-			displaySize = size / static_cast<f32>(MiB);
+			displaySize = static_cast<f32>(size) / static_cast<f32>(MiB);
 		}
 		else if (size >= KiB)
 		{
 			sizeLabel = " KiB";
-			displaySize = size / static_cast<f32>(KiB);
+			displaySize = static_cast<f32>(size) / static_cast<f32>(KiB);
 		}
 		else
 		{

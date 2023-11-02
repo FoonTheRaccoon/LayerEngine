@@ -1,5 +1,4 @@
 #include "RenderPass.h"
-#include "GpuMemoryTracker.h"
 #include "VkTypes.h"
 #include "SwapChain.h"
 #include "VkBuffersAndImages.h"
@@ -8,7 +7,7 @@
 
 void RenderPass::CreateRenderPass(const VkRef& vkRef, const SwapChain& swapChain)
 {
-	LOG_DEBUG("Creating Vulkan Render Pass...");
+	LOG_DEBUG("Creating Vulkan Render Pass...")
 
 	CreateAttachmentImageBuffers(vkRef, swapChain);
 
@@ -83,28 +82,28 @@ void RenderPass::CreateRenderPass(const VkRef& vkRef, const SwapChain& swapChain
 	swapchainColorAttachmentReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
 	// Array of attachment references for the inputs to subpass 2 from subpass 1
-	std::array<VkAttachmentReference, 2> inputRefrences = {};
+	std::array<VkAttachmentReference, 2> inputReferences = {};
 	// Subpass 1 output 1/Subpass 2 input 1 (Color)
-	inputRefrences[0].attachment = 1;				// Index in the framebuffer when the attachment from subpass 1 was placed
-	inputRefrences[0].layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	inputReferences[0].attachment = 1;				// Index in the framebuffer when the attachment from subpass 1 was placed
+	inputReferences[0].layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 	// Subpass 1 output 2/Subpass 2 input 2 (Depth)
-	inputRefrences[1].attachment = 2;				// Index in the framebuffer when the attachment from subpass 1 was placed
-	inputRefrences[1].layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	inputReferences[1].attachment = 2;				// Index in the framebuffer when the attachment from subpass 1 was placed
+	inputReferences[1].layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
 	// Set up subpass 2
 	subpasses[1].pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;	// Pipeline type subpass is to be bound/linked to
 	subpasses[1].colorAttachmentCount = 1;												// Number of color attachments used by subpass
 	subpasses[1].pColorAttachments = &swapchainColorAttachmentReference;				// List of color attachments used by subpass
 	subpasses[1].pDepthStencilAttachment = VK_NULL_HANDLE;								// Depth stencil (only 1) used by subpass in raster phase
-	subpasses[1].inputAttachmentCount = static_cast<uint32_t>(inputRefrences.size());	// Number of input attachments used by subpass from previous subpasses
-	subpasses[1].pInputAttachments = inputRefrences.data();								// List of input attachments used by subpass from previous subpasses
+	subpasses[1].inputAttachmentCount = static_cast<uint32_t>(inputReferences.size());	// Number of input attachments used by subpass from previous subpasses
+	subpasses[1].pInputAttachments = inputReferences.data();								// List of input attachments used by subpass from previous subpasses
 	subpasses[1].preserveAttachmentCount = 0;											// Number of attachments that you want to preserve that aren't used by this subpass (You must pass them along to later subpasses that will use them)
 	subpasses[1].pPreserveAttachments = VK_NULL_HANDLE;									// List of attachments that you want to preserve that aren't used by this subpass
 	subpasses[1].pResolveAttachments = VK_NULL_HANDLE;									// List of attachments that you want to resolve (defined by VkSubpassDescriptionDepthStencilResolve struct in pNext chain of VkSubpassDescription2)
 
 	// --SUBPASS DEPENDENCIES--
 	// Subpass dependencies describes when the implicit layout transition between subpasses occurs. We do not call these transitions explicitly.
-	std::array<VkSubpassDependency, 3> subpassDependencies;
+	std::array<VkSubpassDependency, 3> subpassDependencies = {};
 	// Conversion from VK_IMAGE_LAYOUT_UNDEFINED (Initial layout of color attachment) to VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL (Subpass 1 format)
 	// Transition must happen after...
 	subpassDependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;					// What subpass (index) this subpass is pulling from (if first(src)/last(dst) subpass in render pass then this will be VK_SUBPASS_EXTERNAL)
@@ -152,11 +151,11 @@ void RenderPass::CreateRenderPass(const VkRef& vkRef, const SwapChain& swapChain
 	renderPassCreateInfo.dependencyCount = static_cast<uint32_t>(subpassDependencies.size());
 	renderPassCreateInfo.pDependencies = subpassDependencies.data();
 
-	LOG_VKRESULT(vkCreateRenderPass(vkRef.logDevice, &renderPassCreateInfo, &vkRef.hostAllocator, &m_RenderPass));
+	LOG_VKRESULT(vkCreateRenderPass(vkRef.logDevice, &renderPassCreateInfo, &vkRef.hostAllocator, &m_RenderPass))
 
 	CreateFrameBuffers(vkRef, swapChain);
 
-	LOG_INFO("Created Vulkan Render Pass");
+	LOG_INFO("Created Vulkan Render Pass")
 }
 
 
@@ -168,11 +167,11 @@ void RenderPass::DestroyRenderPass(const VkRef& vkRef)
 	DestroyFrameBuffers(vkRef);
 	vkDestroyRenderPass(vkRef.logDevice, m_RenderPass, &vkRef.hostAllocator);
 
-	LOG_INFO("Destroyed Vulkan Render Pass");
+	LOG_INFO("Destroyed Vulkan Render Pass")
 }
 
 
-const VkFramebuffer RenderPass::GetFrameBuffer(u32 index) const
+VkFramebuffer RenderPass::GetFrameBuffer(u32 index) const
 {
 	if (index <= (m_FrameBuffers.size() - 1)) [[likely]]
 	{
@@ -180,7 +179,7 @@ const VkFramebuffer RenderPass::GetFrameBuffer(u32 index) const
 	}
 	else [[unlikely]]
 	{
-		LOG_WARNING(T_string("Trying to access invalid frame buffer index! Given index: ", std::to_string(index)));
+		LOG_WARNING(T_string("Trying to access invalid frame buffer index! Given index: ", std::to_string(index)))
 		return m_FrameBuffers[0];
 	}
 }
@@ -195,32 +194,30 @@ void RenderPass::CreateAttachmentImageBuffers(const VkRef& vkRef, const SwapChai
 
 	const VkExtent2D swapChainExtent = swapChain.Extent();
 
-	for (size_t i = 0; i < m_ColorImages.size(); i++)
+	for (GpuImage& colorImage : m_ColorImages)
 	{
 		// Create color buffer image
-		m_ColorImages[i] = VkImageHelpers::Create2DImage(
+		colorImage = VkImageHelpers::Create2DImage(
 			vkRef,
 			swapChainExtent, 
 			vkRef.phyDevice.preferred32BitPackColorAttachmentFormat,
 			VK_IMAGE_TILING_OPTIMAL, 
 			VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT,
 			VK_IMAGE_ASPECT_COLOR_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
 			GPU_USAGE_ATTACHMENT_IMAGE
 		);
 	}
 
-	for (size_t i = 0; i < m_DepthImages.size(); i++)
+	for (GpuImage& depthImage : m_DepthImages)
 	{
 		// Create color buffer image
-		m_DepthImages[i] = VkImageHelpers::Create2DImage(
+        depthImage = VkImageHelpers::Create2DImage(
 			vkRef,
 			swapChainExtent,
 			vkRef.phyDevice.preferredDepthStencilAttachmentFormat,
 			VK_IMAGE_TILING_OPTIMAL,
 			VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT,
 			VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 			GPU_USAGE_ATTACHMENT_IMAGE
 		);
 	}
@@ -255,30 +252,30 @@ void RenderPass::CreateFrameBuffers(const VkRef& vkRef, const SwapChain& swapCha
 		framebufferCreateInfo.height = swapChainExtent.height;							// Framebuffer height
 		framebufferCreateInfo.layers = 1;												// Framebuffer layers (number designated in swap chain creation)
 
-		LOG_VKRESULT(vkCreateFramebuffer(vkRef.logDevice, &framebufferCreateInfo, &vkRef.hostAllocator, &m_FrameBuffers[i]));
+		LOG_VKRESULT(vkCreateFramebuffer(vkRef.logDevice, &framebufferCreateInfo, &vkRef.hostAllocator, &m_FrameBuffers[i]))
 	}
 
-	LOG_INFO("Created Vulkan Framebuffers");
+	LOG_INFO("Created Vulkan Framebuffers")
 }
 
 
 void RenderPass::DestroyAttachmentImageBuffers(const VkRef& vkRef)
 {
-	for (size_t i = 0; i < m_ColorImages.size(); i++)
+	for (GpuImage& colorImage : m_ColorImages)
 	{
-		VkImageHelpers::DestroyImage(vkRef, m_ColorImages[i]);
+		VkImageHelpers::DestroyImage(vkRef, colorImage);
 	}
 
-	for (size_t i = 0; i < m_DepthImages.size(); i++)
+	for (GpuImage& depthImage : m_DepthImages)
 	{
-		VkImageHelpers::DestroyImage(vkRef, m_DepthImages[i]);
+		VkImageHelpers::DestroyImage(vkRef, depthImage);
 	}
 }
 
 
 void RenderPass::DestroyFrameBuffers(const VkRef& vkRef)
 {
-	for (auto& frameBuffer : m_FrameBuffers)
+	for (VkFramebuffer& frameBuffer : m_FrameBuffers)
 	{
 		vkDestroyFramebuffer(vkRef.logDevice, frameBuffer, &vkRef.hostAllocator);
 	}

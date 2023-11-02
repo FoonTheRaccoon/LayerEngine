@@ -1,11 +1,34 @@
 #include "ImGuiManager.h"
+#include "VkTypes.h"
 #include "Logger.h"
 #include "LoggingCallbacks.h"
+#include "LayerContainers.h"
+#include "MemoryTracker.h"
 #include "FileHelper.h"
+
+namespace ImGuiManager
+{
+    // ImGui Vulkan members
+    VkRenderPass _imguiRenderPass = {};
+    T_vector<VkFramebuffer, MT_GRAPHICS> _imguiFrameBuffers = {};
+    VkExtent2D _swapChainExtentRef;
+    VkPipelineCache _imguiPipelineCache = {};
+    VkDescriptorPool _imguiDescriptorPool = {};
+    VkClearValue _imguiClearValue = {};
+    
+    // DockSpace members
+    bool _bDockSpaceOpen = true;
+    f32 _imguiWindowOpacity = 0.6f;
+    
+    // DockSpace and top menu bar manager
+    void _DockSpaceManager(ImGuiIO& io);
+}
 
 void ImGuiManager::SetupImgui(const VkRef& vkRef)
 {
-	LOG_DEBUG("Setting Up ImGui...");
+    #ifdef LAYER_USE_UI
+    
+	LOG_DEBUG("Setting Up ImGui...")
 
 	// Create Render Pass For Just ImGui
 	VkAttachmentDescription attachment = {};
@@ -39,9 +62,9 @@ void ImGuiManager::SetupImgui(const VkRef& vkRef)
 	info.pSubpasses = &subpass;
 	info.dependencyCount = 1;
 	info.pDependencies = &dependency;
-	LOG_VKRESULT(vkCreateRenderPass(vkRef.logDevice, &info, &vkRef.hostAllocator, &_imguiRenderPass));
+	LOG_VKRESULT(vkCreateRenderPass(vkRef.logDevice, &info, &vkRef.hostAllocator, &_imguiRenderPass))
 
-	// _imguiFrameBuffer will be set up by the main swap chain object
+	// _imguiFrameBuffers will be set up by the main swap chain object
 
 	// Create Descriptor Pool
 	std::array<VkDescriptorPoolSize, 1> poolSizes =
@@ -54,7 +77,7 @@ void ImGuiManager::SetupImgui(const VkRef& vkRef)
 	poolInfo.maxSets = 1;
 	poolInfo.poolSizeCount = static_cast<u32>(poolSizes.size());
 	poolInfo.pPoolSizes = poolSizes.data();
-	LOG_VKRESULT(vkCreateDescriptorPool(vkRef.logDevice, &poolInfo, &vkRef.hostAllocator, &ImGuiManager::_imguiDescriptorPool));
+	LOG_VKRESULT(vkCreateDescriptorPool(vkRef.logDevice, &poolInfo, &vkRef.hostAllocator, &ImGuiManager::_imguiDescriptorPool))
 
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION(); 
@@ -64,18 +87,23 @@ void ImGuiManager::SetupImgui(const VkRef& vkRef)
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
-	//io.ConfigViewportsNoAutoMerge = true;
-	//io.ConfigViewportsNoTaskBarIcon = true;
+	// io.ConfigViewportsNoAutoMerge = true;
+	// io.ConfigViewportsNoTaskBarIcon = true;
 
 	// Set config location
-	if (imguiConfigFilePath[0] == '\0')
+	if (imguiConfigDirPath.empty()) [[unlikely]]
 	{
-		LOG_ERROR("ImGui config file hasn't be set!");
+		LOG_ERROR("ImGui config file path hasn't be set!")
 	}
-	else
+    else if(imguiConfigFilePath.empty()) [[unlikely]]
+    {
+        LOG_ERROR("ImGui config file name hasn't be set!")
+    }
+	else [[likely]]
 	{
-		FileHelper::CreateFolderIfAbsent(imguiConfigFilePath.c_str(), false);
-		imguiConfigFilePath.append("GuiLayout.ini");
+        // Create the folder to store the .ini file
+		FileHelper::CreateFolderIfAbsent(imguiConfigDirPath.c_str(), false);
+        // Set the path for the .ini file
 		io.IniFilename = imguiConfigFilePath.c_str();
 	}
 
@@ -120,24 +148,24 @@ void ImGuiManager::SetupImgui(const VkRef& vkRef)
 	// - Use '#define IMGUI_ENABLE_FREETYPE' in your imconfig file to use Freetype for higher quality font rendering.
 	// - Read 'docs/FONTS.md' for more instructions and details.
 	// - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
-	//io.Fonts->AddFontDefault();
-	//io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf", 18.0f);
-	//io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
-	//io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
-	//io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
-	//ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
-	//IM_ASSERT(font != nullptr);
+	// io.Fonts->AddFontDefault();
+	// io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf", 18.0f);
+	// io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
+	// io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
+	// io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
+	// ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
+	// IM_ASSERT(font != nullptr);
 
 	// TODO: Upload custom fonts
 	// Upload Fonts
 	{
 		// Use any command queue
 
-		LOG_VKRESULT(vkResetCommandPool(vkRef.logDevice, vkRef.graphicsCommandPool, 0));
+		LOG_VKRESULT(vkResetCommandPool(vkRef.logDevice, vkRef.graphicsCommandPool, 0))
 		VkCommandBufferBeginInfo beginInfo = {};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		beginInfo.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-		LOG_VKRESULT(vkBeginCommandBuffer(vkRef.graphicsCommandBuffers[0], &beginInfo));
+		LOG_VKRESULT(vkBeginCommandBuffer(vkRef.graphicsCommandBuffers[0], &beginInfo))
 
 		ImGui_ImplVulkan_CreateFontsTexture(vkRef.graphicsCommandBuffers[0]);
 
@@ -145,19 +173,22 @@ void ImGuiManager::SetupImgui(const VkRef& vkRef)
 		endInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 		endInfo.commandBufferCount = 1;
 		endInfo.pCommandBuffers = &vkRef.graphicsCommandBuffers[0];
-		LOG_VKRESULT(vkEndCommandBuffer(vkRef.graphicsCommandBuffers[0]));
-		LOG_VKRESULT(vkQueueSubmit(vkRef.queues.graphics, 1, &endInfo, VK_NULL_HANDLE));
+		LOG_VKRESULT(vkEndCommandBuffer(vkRef.graphicsCommandBuffers[0]))
+		LOG_VKRESULT(vkQueueSubmit(vkRef.queues.graphics, 1, &endInfo, VK_NULL_HANDLE))
 
-		LOG_VKRESULT(vkDeviceWaitIdle(vkRef.logDevice));
+		LOG_VKRESULT(vkDeviceWaitIdle(vkRef.logDevice))
 		ImGui_ImplVulkan_DestroyFontUploadObjects();
 	}
-
-
-	LOG_INFO("ImGui Setup Finished");
+ 
+	LOG_INFO("ImGui Setup Finished")
+    
+    #endif // LAYER_USE_UI
 }
 
 void ImGuiManager::StartImguiFrame()
 {
+    #ifdef LAYER_USE_UI
+    
 	// Start the Dear ImGui frame
 	ImGui_ImplVulkan_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -191,17 +222,21 @@ void ImGuiManager::StartImguiFrame()
 
 	// Rendering
 	ImGui::Render();
+    
+    #endif // LAYER_USE_UI
 }
 
 void ImGuiManager::SubmitImGuiVulkanCommands(VkCommandBuffer cmdBuffer, u32 frameIndex)
 {
+    #ifdef LAYER_USE_UI
+    
 	_imguiClearValue.color = { {_clearColor.x, _clearColor.y, _clearColor.z, 1.0f} };
 
 	// Command Buffer must be started 
 	VkRenderPassBeginInfo imguiRenderPassBeginInfo = {};
 	imguiRenderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	imguiRenderPassBeginInfo.renderPass = _imguiRenderPass;
-	imguiRenderPassBeginInfo.framebuffer = _imguiFrameBuffer[frameIndex];
+	imguiRenderPassBeginInfo.framebuffer = _imguiFrameBuffers[frameIndex];
 	imguiRenderPassBeginInfo.renderArea.extent.width = _swapChainExtentRef.width;
 	imguiRenderPassBeginInfo.renderArea.extent.height = _swapChainExtentRef.height;
 	imguiRenderPassBeginInfo.clearValueCount = 1;
@@ -213,49 +248,63 @@ void ImGuiManager::SubmitImGuiVulkanCommands(VkCommandBuffer cmdBuffer, u32 fram
 
 	// Submit command buffer
 	vkCmdEndRenderPass(cmdBuffer);
+    
+    #endif // LAYER_USE_UI
 }
 
 void ImGuiManager::EndImguiFrame()
 {
+    #ifdef LAYER_USE_UI
+    
 	// Update and Render additional Platform Windows
 	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 	{
 		ImGui::UpdatePlatformWindows();
 		ImGui::RenderPlatformWindowsDefault();
 	}
+    
+    #endif // LAYER_USE_UI
 }
 
 void ImGuiManager::ShutdownImgui(const VkRef& vkRef)
 {
-	LOG_DEBUG("Shutting Down ImGui...");
+    #ifdef LAYER_USE_UI
+    
+	LOG_DEBUG("Shutting Down ImGui...")
 
+    // Internal ImGui Shutdown
 	ImGui_ImplVulkan_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
 
-	for (u32 i = 0; i < _imguiFrameBuffer.size(); i++)
+    // Destroy vulkan objects imgui was using
+	for (auto& frameBuffer : _imguiFrameBuffers)
 	{
-		vkDestroyFramebuffer(vkRef.logDevice, _imguiFrameBuffer[i], &vkRef.hostAllocator);
+		vkDestroyFramebuffer(vkRef.logDevice, frameBuffer, &vkRef.hostAllocator);
 	}
 	vkDestroyRenderPass(vkRef.logDevice, ImGuiManager::_imguiRenderPass, &vkRef.hostAllocator);
 	vkDestroyDescriptorPool(vkRef.logDevice, ImGuiManager::_imguiDescriptorPool, &vkRef.hostAllocator);
 
-	LOG_INFO("Shutdown ImGui");
+	LOG_INFO("Shutdown ImGui")
+    
+    #endif // LAYER_USE_UI
 }
 
-void ImGuiManager::CreateImGuiFrameBuffer(const VkRef& vkRef, const T_vector<SwapChainImage, MT_GRAPHICS> swapChainImages, VkExtent2D swapChainExtent)
+void ImGuiManager::CreateImGuiFrameBuffer(const VkRef& vkRef, const T_vector<SwapChainImage, MT_GRAPHICS>& swapChainImages, VkExtent2D swapChainExtent)
 {
-	for (u32 i = 0; i < _imguiFrameBuffer.size(); i++)
+    #ifdef LAYER_USE_UI
+    
+	for (auto& frameBuffer : _imguiFrameBuffers)
 	{
-		vkDestroyFramebuffer(vkRef.logDevice, ImGuiManager::_imguiFrameBuffer[i], &vkRef.hostAllocator);
+		vkDestroyFramebuffer(vkRef.logDevice, frameBuffer, &vkRef.hostAllocator);
 	}
 
 	// Preallocate size
-	_imguiFrameBuffer.resize(vkRef.phyDevice.swapChainBufferCount);
+	_imguiFrameBuffers.resize(vkRef.phyDevice.swapChainBufferCount);
 
 	_swapChainExtentRef = swapChainExtent;
 
-	for (size_t i = 0; i < _imguiFrameBuffer.size(); i++)
+	for (size_t i = 0; i < _imguiFrameBuffers.size(); i++)
 	{
 		// Add attachments made in the render pass in the same order
 		std::array<VkImageView, 1> attachments = {
@@ -271,12 +320,16 @@ void ImGuiManager::CreateImGuiFrameBuffer(const VkRef& vkRef, const T_vector<Swa
 		framebufferCreateInfo.height = _swapChainExtentRef.height;						// Framebuffer height
 		framebufferCreateInfo.layers = 1;												// Framebuffer layers (number designated in swap chain creation)
 
-		LOG_VKRESULT(vkCreateFramebuffer(vkRef.logDevice, &framebufferCreateInfo, &vkRef.hostAllocator, &_imguiFrameBuffer[i]));
+		LOG_VKRESULT(vkCreateFramebuffer(vkRef.logDevice, &framebufferCreateInfo, &vkRef.hostAllocator, &_imguiFrameBuffers[i]))
 	}
+    
+    #endif // LAYER_USE_UI
 }
 
 void ImGuiManager::_DockSpaceManager(ImGuiIO& io)
 {
+    #ifdef LAYER_USE_UI
+    
 	constexpr ImGuiWindowFlags windowFlags =  ImGuiWindowFlags_MenuBar			| ImGuiWindowFlags_NoTitleBar	
 											| ImGuiWindowFlags_NoDocking		| ImGuiWindowFlags_NoCollapse
 											| ImGuiWindowFlags_NoBackground		| ImGuiWindowFlags_NoResize
@@ -330,5 +383,7 @@ void ImGuiManager::_DockSpaceManager(ImGuiIO& io)
 	}
 
 	ImGui::End();
+    
+    #endif // LAYER_USE_UI
 }
 

@@ -1,21 +1,20 @@
 #pragma once
 #include "ThirdParty.h"
 
-
 namespace LayerMemory
 {
 	inline void* AlignedMalloc(size_t size, size_t alignment) 
 	{
-		void* ptr = nullptr;
+		void* ptr;
 
-	#if defined(_WIN64)
+	#if LAYER_PLATFORM_WINDOWS
 		ptr = _aligned_malloc(size, alignment);
-	#elif defined(__linux__) || defined(__ANDROID__)
+	#elif LAYER_PLATFORM_LINUX || LAYER_PLATFORM_ANDROID
 		if (posix_memalign(&ptr, alignment, size) != 0)
 		{
 			ptr = nullptr;
 		}
-	#elif defined(__APPLE__)
+	#elif LAYER_PLATFORM_APPLE
 		posix_memalign(&ptr, alignment, size);
 	#else
 		return malloc(size);
@@ -28,7 +27,7 @@ namespace LayerMemory
 	{
 		if (ptr == nullptr) { return;}
 
-	#if defined(_WIN64)
+	#if LAYER_PLATFORM_WINDOWS
 		_aligned_free(ptr);
 	#else
 		free(ptr);
@@ -36,6 +35,6 @@ namespace LayerMemory
 	}
 
 	
-}
+} // namespace LayerMemory
 
 

@@ -2,20 +2,19 @@
 #include "Logger.h"
 #include "MemoryTracker.h"
 #include "LayerMemory.h"
-#include "GlobalConstants.h"
 #include "vk_enum_string_helper.h"
 
 
 void LoggingCallbacks::glfw_error_callback(int error, const char* description)
 {
-	LOG_ERROR_MIN(T_string("GLFW Error! Error Code: ", std::to_string(error), " | Error Description: ", description));
+	LOG_ERROR_MIN(T_string("GLFW Error! Error Code: ", std::to_string(error), " | Error Description: ", description))
 }
 
 void LoggingCallbacks::ImguiCheckVkResult(VkResult err)
 {
 	if (err != VK_SUCCESS) [[unlikely]]
 		{
-			LOG_ERROR_MIN(T_string("Imgui Error: VkResult == ", string_VkResult(err)));
+			LOG_ERROR_MIN(T_string("Imgui Error: VkResult == ", string_VkResult(err)))
 		}
 }
 
@@ -25,21 +24,21 @@ namespace ValidationLayers
 	T_string _VkMessageBuffer = {};
 }
 
-VKAPI_ATTR VkBool32 VKAPI_CALL ValidationLayers::DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
+VKAPI_ATTR VkBool32 VKAPI_CALL ValidationLayers::DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, [[maybe_unused]] VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, [[maybe_unused]] void* pUserData)
 {
 	_VkMessageBuffer.clear();
 	_VkMessageBuffer.AppendMany("Validation Layers: ", pCallbackData->pMessage);
 	if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
 	{
-		LOG_ERROR_MIN(_VkMessageBuffer.c_str());
+		LOG_ERROR_MIN(_VkMessageBuffer.c_str())
 	}
 	else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
 	{
-		LOG_WARNING_MIN(_VkMessageBuffer.c_str());
+		LOG_WARNING_MIN(_VkMessageBuffer.c_str())
 	}
 	else
 	{
-		LOG_INFO(_VkMessageBuffer.c_str());
+		LOG_INFO(_VkMessageBuffer.c_str())
 	}
 
 	return VK_FALSE;
@@ -61,13 +60,13 @@ VkResult ValidationLayers::CreateDebugUtilsMessengerEXT(VkInstance instance, con
 
 void ValidationLayers::DestroyDebugUtilsMessengerEXT(VkInstance instance, const VkAllocationCallbacks* pAllocator)
 {
-	if (!GlobalConstants::bEnableValidationLayers) return;
-
+    #if LAYER_USE_VALIDATION_LAYERS
 	auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
 	if (func != nullptr)
 	{
 		func(instance, _VkDebugMessenger, pAllocator);
 	}
+    #endif
 }
 
 bool ValidationLayers::CheckValidationLayerSupport()
@@ -103,15 +102,17 @@ void ValidationLayers::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCre
 
 void ValidationLayers::SetupDebugMessenger(VkInstance instance)
 {
-	if (!GlobalConstants::bEnableValidationLayers) return;
+    #if LAYER_USE_VALIDATION_LAYERS
 
-	LOG_DEBUG("Setting Up Vulkan Validation Layers Callback...");
+	LOG_DEBUG("Setting Up Vulkan Validation Layers Callback...")
 
 	VkDebugUtilsMessengerCreateInfoEXT createInfo;
 	PopulateDebugMessengerCreateInfo(createInfo);
 
-	LOG_VKRESULT(CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &_VkDebugMessenger));
-	LOG_INFO("Setup Vulkan Validation Layers Callback");
+	LOG_VKRESULT(CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &_VkDebugMessenger))
+	LOG_INFO("Setup Vulkan Validation Layers Callback")
+    
+    #endif
 }
 
 
@@ -123,7 +124,7 @@ namespace MemoryTackingCallbacks
 }
 
 // Callback for a VkAllocationCallbacks object
-void* MemoryTackingCallbacks::vkAllocateHostMemory(void* pUserData, size_t size, size_t alignment, VkSystemAllocationScope allocationScope)
+void* MemoryTackingCallbacks::vkAllocateHostMemory([[maybe_unused]] void* pUserData, size_t size, size_t alignment, [[maybe_unused]] VkSystemAllocationScope allocationScope)
 {
 	if (size == 0) { return nullptr; }
 
@@ -136,7 +137,7 @@ void* MemoryTackingCallbacks::vkAllocateHostMemory(void* pUserData, size_t size,
 	return ptr;
 }
 
-void MemoryTackingCallbacks::vkFreeHostMemory(void* pUserData, void* pMemory)
+void MemoryTackingCallbacks::vkFreeHostMemory([[maybe_unused]] void* pUserData, void* pMemory)
 {
 	if (pMemory)
 	{
@@ -174,12 +175,12 @@ void* MemoryTackingCallbacks::vkReallocateHostMemory(void* pUserData, void* pOri
 	return pNewMemory;
 }
 
-void MemoryTackingCallbacks::vkInternalAllocationNotification(void* pUserData, size_t size, VkInternalAllocationType allocationType, VkSystemAllocationScope allocationScope)
+void MemoryTackingCallbacks::vkInternalAllocationNotification([[maybe_unused]] void* pUserData, size_t size, [[maybe_unused]] VkInternalAllocationType allocationType, [[maybe_unused]] VkSystemAllocationScope allocationScope)
 {
 	MemoryTracker::AllocatedHostMemory(MT_VULKAN_INTERNAL, size);
 }
 
-void MemoryTackingCallbacks::vkInternalFreeNotification(void* pUserData, size_t size, VkInternalAllocationType allocationType, VkSystemAllocationScope allocationScope)
+void MemoryTackingCallbacks::vkInternalFreeNotification([[maybe_unused]] void* pUserData, size_t size, [[maybe_unused]] VkInternalAllocationType allocationType, [[maybe_unused]] VkSystemAllocationScope allocationScope)
 {
 	MemoryTracker::DeallocatedHostMemory(MT_VULKAN_INTERNAL, size);
 }

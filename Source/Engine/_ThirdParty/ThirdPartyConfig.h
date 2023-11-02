@@ -1,7 +1,9 @@
 #pragma once
+#include "ConstantsAndAliases.h"
 
 // All our defines/macros for third party libraries here
 // ______________________________________________________________________________________
+
 
 // --IMGUI--
 // -IMGUI DEFINES-
@@ -13,8 +15,8 @@
 
 // --VULKAN--
 // -VULKAN DEFINES-
-#ifdef __ANDROID__
-#define VK_USE_PLATFORM_ANDROID_KHR	// GLFW will set other Vulkan platforms, we must manually set Android
+#if LAYER_PLATFORM_ANDROID
+#define VK_USE_PLATFORM_ANDROID_KHR	    // GLFW will set other Vulkan platforms, we must manually set Android
 #endif
 
 // --GLFW--
@@ -39,8 +41,10 @@
 
 // SIMD
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES // Pads vec memory to set length. Required for SIMD
-#if defined(_WIN64) || (defined(__linux__) && !defined(__ANDROID__))
+#if !LAYER_PLATFORM_ANDROID
 #define GLM_FORCE_AVX2		// Force AVX2 if building to x86 platforms, else glm will automatically set SIMD for other systems (Android/apple silicon NEON)
+#elif LAYER_PLATFORM_ANDROID
+#define GLM_FORCE_NEON
 #endif
 // TODO: Verify glm Neon SIMD is being built on android/macOS
 

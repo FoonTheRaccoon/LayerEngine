@@ -1,33 +1,35 @@
 #include "MemoryTracker.h"
-#include "EngUtils.h"
+#include "HelperTypes.h"
+#include "ImGuiManager.h"
+#include "Logger.h"
 
 
 // -----NEW/DELETE OVERLOADS------
 void* __CRTDECL operator new(size_t size)
 {
-	// Capture third party/miscellaneous allocations, and add them to MT_UNKOWN
-	MemoryTracker::AllocatedHostMemory(MT_UNKOWN, size);
+	// Capture third party/miscellaneous allocations, and add them to MT_UNKNOWN
+	MemoryTracker::AllocatedHostMemory(MT_UNKNOWN, size);
 	return malloc(size);
 }
 
 void* __CRTDECL operator new[](size_t size)
 {
-	// Capture third party/miscellaneous allocations, and add them to MT_UNKOWN
-	MemoryTracker::AllocatedHostMemory(MT_UNKOWN, size);
+	// Capture third party/miscellaneous allocations, and add them to MT_UNKNOWN
+	MemoryTracker::AllocatedHostMemory(MT_UNKNOWN, size);
 	return malloc(size);
 }
 
 void __CRTDECL operator delete(void* memory, size_t size) noexcept
 {
-	// Capture third party/miscellaneous frees, and subtract them from MT_UNKOWN
-	MemoryTracker::DeallocatedHostMemory(MT_UNKOWN, size);
+	// Capture third party/miscellaneous frees, and subtract them from MT_UNKNOWN
+	MemoryTracker::DeallocatedHostMemory(MT_UNKNOWN, size);
 	free(memory);
 }
 
 void __CRTDECL operator delete[](void* memory, size_t size) noexcept
 {
-	// Capture third party/miscellaneous frees, and subtract them from MT_UNKOWN
-	MemoryTracker::DeallocatedHostMemory(MT_UNKOWN, size);
+	// Capture third party/miscellaneous frees, and subtract them from MT_UNKNOWN
+	MemoryTracker::DeallocatedHostMemory(MT_UNKNOWN, size);
 	free(memory);
 }
 
@@ -47,7 +49,7 @@ namespace MemoryTracker
 	const char* _GetMemoryTrackerTagName(u32 tag);
 }
 
-void MemoryTracker::InitilizeMemoryTracker()
+void MemoryTracker::InitializeMemoryTracker()
 {
 	// Set default values for each tag 
 	for (u32 i = 0; i < _hostMemoryUsage.size(); i++)
@@ -58,7 +60,7 @@ void MemoryTracker::InitilizeMemoryTracker()
 		_hostMemoryUsage[i].SetDisplayLabel();
 	}
 
-	REGISTER_EDITOR_UI(nullptr, MemoryTracker::_DrawMemoryTrackerUI);
+	REGISTER_EDITOR_UI_WINDOW(nullptr, MemoryTracker::_DrawMemoryTrackerUI)
 }
 
 void MemoryTracker::AllocatedHostMemory(MemoryTrackerTag tag, u64 sizeOfAlloc)
@@ -102,18 +104,18 @@ void MemoryTracker::_DrawMemoryTrackerUI()
 		ImGui::TableHeadersRow();
 
 
-		for (u64 row = 0; row < _hostMemoryUsage.size(); row++)
+		for (MemoryUsageInfo& trackerTag : _hostMemoryUsage)
 		{
 			ImGui::TableNextRow();
 			// Tag Name
 			ImGui::TableSetColumnIndex(0);
-			ImGui::TextUnformatted(_hostMemoryUsage[row].tagName);
+			ImGui::TextUnformatted(trackerTag.tagName);
 			// Number of Allocations
 			ImGui::TableSetColumnIndex(1);
-			ImGui::Text("%llu", _hostMemoryUsage[row].allocations);
+			ImGui::Text("%llu", trackerTag.allocations);
 			// Byte Size
 			ImGui::TableSetColumnIndex(2);
-			ImGui::Text("%.3f%s", _hostMemoryUsage[row].displaySize, _hostMemoryUsage[row].sizeLabel);
+			ImGui::Text("%.3f%s", trackerTag.displaySize, trackerTag.sizeLabel);
 
 		}
 		ImGui::EndTable();
@@ -126,8 +128,8 @@ const char* MemoryTracker::_GetMemoryTrackerTagName(u32 tag)
 {
 	switch (tag)
 	{
-		case MT_UNKOWN:
-			return "UNKOWN:\t\t";
+		case MT_UNKNOWN:
+			return "UNKNOWN:\t";
 		case MT_ENGINE:
 			return "ENGINE:\t\t";
 		case MT_EDITOR:

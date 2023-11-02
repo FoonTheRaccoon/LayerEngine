@@ -15,7 +15,8 @@ enum LogSeverityLevel : u32
 	LOG_SEVERITY_INFO,
 	LOG_SEVERITY_BENCHMARK,
 	LOG_SEVERITY_DEBUG,
-	LOG_SEVERITY_OTHER
+	LOG_SEVERITY_OTHER,
+    LOG_SEVERITY_MAX    // Do not use except for limit checks
 };
 
 // Logger functions that should only be called by logger macros
@@ -31,7 +32,7 @@ namespace Logger
 	inline Broadcaster<void()> fatalShutdownBroadcaster;
 
 	// Used to initialize Layer logging
-	void InitilizeLogging();
+	void InitializeLogging();
 
 	// Called when logging window is called, does final write to log file.
 	void ShutdownLogging();
@@ -45,7 +46,8 @@ namespace Logger
 
 	// PrintLog that can take a T_string. Just passes message.c_str() to main PrintLog()
 	void PrintLog(LogSeverityLevel severityLevel, const T_string& message);
-}
+ 
+} // namespace Logger
 
 // -LOGGER MACROS-
 
@@ -73,9 +75,9 @@ namespace Logger
 
 
 // Prints assertion log FATAL if ptr == nullptr (Log File + Live)
-#define ASSERT_PTR(ptr)																					\
-	if (ptr == nullptr)	[[unlikely]]																	\
-	{																									\
+#define ASSERT_PTR(ptr)																					        \
+	if (ptr == nullptr)	[[unlikely]]																	        \
+	{																									        \
 		_PRINT_MESSAGE_INFO(LOG_SEVERITY_FATAL, T_string("Assertion Failed: ", STRINGIFY(ptr), " == nullptr"));	\
 	}
 
@@ -91,17 +93,17 @@ namespace Logger
 #define ASSERT_TRUE(condition)																			 \
 	if (!(condition)) [[unlikely]]																		 \
 	{																									 \
-		_PRINT_MESSAGE_INFO(LOG_SEVERITY_WARNING, T_string("Assertion Failed: ", STRINGIFY(condition))); \
+		_PRINT_MESSAGE_INFO(LOG_SEVERITY_ERROR, T_string("Assertion Failed: ", STRINGIFY(condition))); \
 	}
 
 // -VULKAN SPECIFIC LOGGER MACRO-
 // VKResult Handler
-#define LOG_VKRESULT(func)																				\
-	VkResult _MACRO_CONCAT( vkresult, __LINE__ ) = func;												\
-	if (_MACRO_CONCAT( vkresult, __LINE__ ) != VK_SUCCESS)	[[unlikely]]								\
-	{																									\
-		_PRINT_MESSAGE_INFO(LOG_SEVERITY_ERROR,															\
-			T_string("VkResult == ", string_VkResult(_MACRO_CONCAT( vkresult, __LINE__ ))));	\
+#define LOG_VKRESULT(func)																	    \
+	VkResult _MACRO_CONCAT( vkresult, __LINE__ ) = func;									    \
+	if (_MACRO_CONCAT( vkresult, __LINE__ ) != VK_SUCCESS)	[[unlikely]]					    \
+	{																						    \
+		_PRINT_MESSAGE_INFO(LOG_SEVERITY_ERROR,												    \
+			T_string("VkResult == ", string_VkResult(_MACRO_CONCAT( vkresult, __LINE__ ))));    \
 	}
 
 // --USE VERBOSE LOGGER--
@@ -145,6 +147,6 @@ namespace Logger
 #define LOG_DEBUG(message)	
 #define LOG_DEBUG_IF(condition, message)	
 #define ASSERT_TRUE_DEBUG(condition)
-#endif // _DEBUG
+#endif // LAYER_DEBUG
 
 

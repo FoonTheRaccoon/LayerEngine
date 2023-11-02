@@ -7,7 +7,7 @@ using namespace std::chrono_literals;
 class LayerTimer
 {
 public:
-	LayerTimer(const char* label);
+	explicit LayerTimer(const char* label);
 	LayerTimer() : LayerTimer("") {}
 	~LayerTimer();
 

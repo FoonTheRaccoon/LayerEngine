@@ -11,11 +11,10 @@ project(
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# Reccomended non MSVC Windows toolchain: msys2 mingw-w64-clang-x86_64-clang + LLD + Ninja + ccache
+# Recommended non MSVC Windows toolchain: msys2 mingw-w64-clang-x86_64-toolchain (Clang, LLD) + Ninja + ccache
 
 # Check for recommended toolchain if not MSVC
 if(NOT MSVC)
-
 	# Set the generator to Ninja if it's available
 	find_program(NINJA_EXE ninja)
 	if(NINJA_EXE)
@@ -42,9 +41,9 @@ if(NOT MSVC)
 	else()
 		message(STATUS "CCache not available")
 	endif()
-
 endif(NOT MSVC)
 
+# Set avx2 and any other compiler specific options
 if(MSVC)
 	if(CMAKE_BUILD_TYPE STREQUAL "Release")
 		add_compile_options(/O2 /arch:AVX2)
@@ -80,9 +79,10 @@ endif()
 # Clang specific stuff
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 	add_compile_options(-ftime-trace
+	-Wno-reserved-identifier
 	-Wno-nullability-completeness
-	#-Wno-unused-variable 
-	#-Wno-unused-private-field
+	-Wno-unused-variable
+	-Wno-unused-private-field
 	)
 endif()
 

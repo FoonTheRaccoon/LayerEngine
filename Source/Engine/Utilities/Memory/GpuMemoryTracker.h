@@ -18,7 +18,7 @@ enum GpuMemoryUsageTag : u32
 	GPU_USAGE_MAX
 };
 
-// Helper struct to hold info for a GPU image allocation so we can track the memory used
+// Helper struct to hold info for a GPU image allocation, so we can track the memory used
 struct GpuImage
 {
 	GpuImage() = default;
@@ -33,12 +33,12 @@ struct GpuImage
 namespace GpuMemoryTracker
 {
 	// Initialize GPU memory tracker and setup everything it needs
-	void InitilizeGpuMemoryTracker();
+	void InitializeGpuMemoryTracker();
 
-	// Called anytime GPU memory is allocated so we can update the relevant tracking info.
+	// Called anytime GPU memory is allocated, so we can update the relevant tracking info.
 	void AllocatedGpuMemory(GpuMemoryUsageTag tag, u64 sizeOfAlloc);
 
-	// Called anytime GPU memory is deallocated so we can update the relevant tracking info.
+	// Called anytime GPU memory is deallocated, so we can update the relevant tracking info.
 	void DeallocatedGpuMemory(GpuMemoryUsageTag tag, u64 sizeOfAlloc);
 
 	// Add the current GPU memory usage to the log file

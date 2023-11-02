@@ -19,7 +19,7 @@ private:
 public:
 	// Add function to list to be called (once) when broadcaster broadcasts.
 	// Any Register() call on a object's method should call Unregister() in it's destructor or sometime before it's destroyed.
-	// -pContextObject: Pointer to relevant context object that will be use for the function. Usually 'this' for member functions, and 'nullptr' for global or static functions.
+	// -pContextObject: Pointer to relevant context object that will be used for the function. Usually 'this' for member functions, and 'nullptr' for global or static functions.
 	// -functionToBeCalled: Can call function by wrapping it in a std::bind or a lambda.
 	// 
 	// >No parameter static function:		
@@ -60,7 +60,7 @@ public:
 
 	// Use context object, usually 'this', to remove all relevant object functions from the function call array. 
 	// WARNING: If 'nullptr' is passed in then ALL functions that used a nullptr context will be removed from the function call array,
-	// this include all the Globals that are register with the context 'nullptr'.
+	// this includes all the Globals that are register with the context 'nullptr'.
 	// Any Register() call on a object's method should call Unregister() in it's destructor or sometime before it's destroyed.
 	void Unregister(void* pContextObject)
 	{

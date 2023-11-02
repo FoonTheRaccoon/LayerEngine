@@ -1,10 +1,9 @@
 #pragma once
 
-
 namespace Editor
 {
 	void StartUp();
-	void RunGameLoop();
+	void RunAppLoop();
 	void Shutdown();
-};
+}
 

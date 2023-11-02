@@ -12,7 +12,7 @@ namespace VkImageHelpers
 	VkImageView CreateImageView(const VkRef& vkRef, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 
 	// Creates a VkImage and allocates the memory for it on the GPU
-	GpuImage Create2DImage(const VkRef& vkRef, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkImageAspectFlags aspectFlags, VkMemoryPropertyFlags propFlags, GpuMemoryUsageTag gpuMemUsage);
+	GpuImage Create2DImage(const VkRef& vkRef, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkImageAspectFlags aspectFlags, GpuMemoryUsageTag gpuMemUsage);
 
 	// Destroys a VkImage and deallocates the memory for it on the GPU
 	void DestroyImage(const VkRef& vkRef, GpuImage& gpuImage);

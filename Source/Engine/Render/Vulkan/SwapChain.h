@@ -12,21 +12,21 @@ public:
 	SwapChain() = default;
 	~SwapChain() = default;
 
-	void CreateIntialSwapChain(VkRef& vkRef);
+	void CreateInitialSwapChain(VkRef& vkRef);
 	void CreateSwapChain(VkRef& vkRef);
 	void DestroySwapChain(const VkRef& vkRef);
 	void CheckForUnMinimize(VkRef& vkRef);
 
 	//Getters
-	const u64 Size() const;
-	const T_vector<SwapChainImage, MT_GRAPHICS> GetImages() const;
 	VkSwapchainKHR GetHandle() { return m_SwapChain; }
 	VkSwapchainKHR* GetPtr() { return &m_SwapChain; }
-	const VkExtent2D Extent() const { return m_SwapChainExtent; }
-	const bool WindowIsMinimized() const { return m_bWindowMinimized; }
+	[[nodiscard]] u64 Size() const;
+	[[nodiscard]] T_vector<SwapChainImage, MT_GRAPHICS> GetImages() const;
+	[[nodiscard]] VkExtent2D Extent() const { return m_SwapChainExtent; }
+	[[nodiscard]] bool WindowIsMinimized() const { return m_bWindowMinimized; }
 
 private:
-	VkExtent2D ChooseImageExtent(VkRef& vkRef);
+	static VkExtent2D ChooseImageExtent(VkRef& vkRef);
 
 private:
 	VkSwapchainKHR m_SwapChain = VK_NULL_HANDLE;

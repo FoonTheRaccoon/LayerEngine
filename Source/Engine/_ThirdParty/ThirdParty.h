@@ -1,13 +1,9 @@
 #pragma once
 
-#ifndef THIRD_PARTY_H
-#define THIRD_PARTY_H
-
-
 // --THIRD PARTY CONFIG/DEFINES/MACROS--
 // We set all our definitions to configure the third party libraries before we include them.
 #include "ThirdPartyConfig.h"
-#include "GlobalAliases.h"
+#include "ConstantsAndAliases.h"
 
 // --STD LIBRARY--
 #include <vector>
@@ -31,30 +27,37 @@
 #include <sys/stat.h> // For stat() on POSIX systems
 
 // Platform includes
-#ifdef _WIN64
+#if LAYER_PLATFORM_WINDOWS
 #include <windows.h>
 
-#elif defined __linux__
+#elif LAYER_PLATFORM_LINUX
 #include <mm_malloc.h>
 #include <unistd.h>
 #include <linux/limits.h>
-#elif defined __APPLE__
+
+#elif LAYER_PLATFORM_ANDROID
+#include <mm_malloc.h>
+#include <unistd.h>
+#include <linux/limits.h>
+
+#elif LAYER_PLATFORM_APPLE
 #include <mm_malloc.h>
 #include <mach-o/dyld.h>
+
 #endif // Platform includes
 
 
 // --IMGUI--
-#include "imgui.h"					// Imgui Core
+#include "imgui.h"					    // Imgui Core
 #include "imgui_impl_glfw.h"			// Imgui glfw compatibility layer
-#include "imgui_impl_vulkan.h"		// Imgui vulkan compatibility layer
+#include "imgui_impl_vulkan.h"		    // Imgui vulkan compatibility layer
 
 // --VULKAN--
-#include "vulkan.h"					// Core Vulkan 
+#include "vulkan.h"					    // Core Vulkan
 
 
 // --VULKAN MEMORY ALLOCATOR--
-#include "vk_mem_alloc.h"	// Vulkan memory allocator used for buffer/image buffer memory allocation (vmaCreateBuffer() / vmaCreateImage())
+#include "vk_mem_alloc.h"	            // Vulkan memory allocator used for buffer/image buffer memory allocation (vmaCreateBuffer() / vmaCreateImage())
 
 
 // --GLFW--
@@ -62,8 +65,6 @@
 
 
 // --GLM--
-#include "glm.hpp"							// Math library
+#include "glm.hpp"						// Math library
 #include "gtc\matrix_transform.hpp"
 
-
-#endif // THIRD_PARTY_H

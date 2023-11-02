@@ -1,6 +1,5 @@
 #pragma once
 #include "ThirdParty.h"
-#include "GlobalConstants.h"
 
 
 class Viewport

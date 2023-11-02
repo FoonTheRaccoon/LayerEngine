@@ -36,9 +36,9 @@ namespace RenderManager
 }
 
 
-void RenderManager::Initilize(const char* appName, u32 winWidth, u32 winHeight)
+void RenderManager::Initialize(const char* appName, u32 winWidth, u32 winHeight)
 {
-	LOG_DEBUG("Initilizing Render Manager...");
+	LOG_DEBUG("Initializing Render Manager...")
 
 	_Viewport.CreateViewport(appName, winWidth, winHeight);
 
@@ -52,23 +52,24 @@ void RenderManager::Initilize(const char* appName, u32 winWidth, u32 winHeight)
 	VkSetup::CreateVmaAllocator(_VkRef);
 	VkSetup::CreateCommandPools(_VkRef);
 	VkSetup::AllocateCommandBuffers(_VkRef);
-
+ 
 	ImGuiManager::SetupImgui(_VkRef);
-
-	_SwapChain.CreateIntialSwapChain(_VkRef);
+    
+    
+    _SwapChain.CreateInitialSwapChain(_VkRef);
 	m_RenderPass.CreateRenderPass(_VkRef, _SwapChain);
 
 	_CreateSemaphoresAndFences();
 
-	LOG_INFO("Render Manager Initilized");
+	LOG_INFO("Render Manager Initialized")
 }
 
 void RenderManager::Shutdown()
 {
-	LOG_DEBUG("Shuting Down Render Manager...");
+	LOG_DEBUG("Shutting Down Render Manager...")
 
 	// Wait till all GPU processes are done
-	LOG_VKRESULT(vkDeviceWaitIdle(_VkRef.logDevice));
+	LOG_VKRESULT(vkDeviceWaitIdle(_VkRef.logDevice))
 
 	// Clean up in reverse order of initialization 
 	for (u32 i = 0; i < _VkRef.phyDevice.numInFlightFrames; i++)
@@ -101,20 +102,17 @@ void RenderManager::Shutdown()
 
 	_Viewport.DestroyViewport();
 
-	LOG_INFO("Render Manager Shut Down");
+	LOG_INFO("Render Manager Shut Down")
 }
 
 bool RenderManager::WindowsShouldClose()
 {
-	if constexpr (GlobalConstants::bOnAndroid)
-	{
+    #if LAYER_PLATFORM_ANDROID
 		// TODO: Android implementation
 		return false;
-	}
-	else // GLFW
-	{
+    #else // GLFW
 		return glfwWindowShouldClose(_Viewport.GetWindow());
-	}
+    #endif
 }
 
 void RenderManager::DrawFrame()
@@ -122,7 +120,7 @@ void RenderManager::DrawFrame()
 	// Rebuild swap chain if needed.
 	if (_bSwapChainNeedsRebuild)
 	{
-		LOG_VKRESULT(vkDeviceWaitIdle(_VkRef.logDevice));
+		LOG_VKRESULT(vkDeviceWaitIdle(_VkRef.logDevice))
 		_SwapChain.CreateSwapChain(_VkRef);
 		_bSwapChainNeedsRebuild = false;
 	}
@@ -130,7 +128,7 @@ void RenderManager::DrawFrame()
 	// Start imgui frame and call all the UI related functions
 	ImGuiManager::StartImguiFrame();
 
-	// Check if the window has be minimized, then check if it has been unminimized and let imgui finish up.
+	// Check if the window has be minimized, then check if it has been un-minimized and let imgui finish up.
 	if (_SwapChain.WindowIsMinimized())
 	{
 		_SwapChain.CheckForUnMinimize(_VkRef);
@@ -157,7 +155,7 @@ void RenderManager::DrawFrame()
 	}
 	else
 	{
-		LOG_VKRESULT(result);
+		LOG_VKRESULT(result)
 	}
 
 
@@ -178,7 +176,7 @@ void RenderManager::DrawFrame()
 	submitInfo.signalSemaphoreCount = 1;										// Number of semaphores to signal when command buffer finishes.
 	submitInfo.pSignalSemaphores = &_RenderFinished[_CurrentFrame];			// List of semaphores to signal when command buffer finishes.
 
-	LOG_VKRESULT(vkQueueSubmit(_VkRef.queues.graphics, 1, &submitInfo, _DrawFence[_CurrentFrame]));
+	LOG_VKRESULT(vkQueueSubmit(_VkRef.queues.graphics, 1, &submitInfo, _DrawFence[_CurrentFrame]))
 
 	// End imgui frame updating all the windows
 	ImGuiManager::EndImguiFrame();
@@ -200,7 +198,7 @@ void RenderManager::DrawFrame()
 	}
 	else
 	{
-		LOG_VKRESULT(result);
+		LOG_VKRESULT(result)
 	}
 
 	// Get next frame (use % numInFlightFrames to keep value below numInFlightFrames)
@@ -246,12 +244,12 @@ void RenderManager::_CreateSemaphoresAndFences()
 
 	for (u32 i = 0; i < _VkRef.phyDevice.numInFlightFrames; i++)
 	{
-		LOG_VKRESULT(vkCreateSemaphore(_VkRef.logDevice, &semaphoreCreateInfo, &_VkRef.hostAllocator, &_ImageAvailable[i]));
-		LOG_VKRESULT(vkCreateSemaphore(_VkRef.logDevice, &semaphoreCreateInfo, &_VkRef.hostAllocator, &_RenderFinished[i]));
-		LOG_VKRESULT(vkCreateFence(_VkRef.logDevice, &fenceCreateInfo, &_VkRef.hostAllocator, &_DrawFence[i]));
+		LOG_VKRESULT(vkCreateSemaphore(_VkRef.logDevice, &semaphoreCreateInfo, &_VkRef.hostAllocator, &_ImageAvailable[i]))
+		LOG_VKRESULT(vkCreateSemaphore(_VkRef.logDevice, &semaphoreCreateInfo, &_VkRef.hostAllocator, &_RenderFinished[i]))
+		LOG_VKRESULT(vkCreateFence(_VkRef.logDevice, &fenceCreateInfo, &_VkRef.hostAllocator, &_DrawFence[i]))
 	}
 
-	LOG_INFO("Semaphores And Fences Created");
+	LOG_INFO("Semaphores And Fences Created")
 }
 
 

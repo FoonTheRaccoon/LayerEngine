@@ -8,7 +8,7 @@ VkImageView VkImageHelpers::CreateImageView(const VkRef& vkRef, VkImage image, V
 	VkImageViewCreateInfo imageViewCreateInfo = {};
 	imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 	imageViewCreateInfo.image = image;										// Image to create view for.
-	imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;					// Type of image (1D, 2D, 3D, Array, Cube, etc)
+	imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;					// Type of image (1D, 2D, 3D, Array, Cube, etc.)
 	imageViewCreateInfo.format = format;									// Format of the image (e.g. VK_FORMAT_R8G8B8A8_UNORM or other)
 
 	imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;		// Allows remapping of rgba components to other RGBA values or 1/0 
@@ -16,7 +16,7 @@ VkImageView VkImageHelpers::CreateImageView(const VkRef& vkRef, VkImage image, V
 	imageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
 	imageViewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
 
-	// Subresources allow the image view to view only a part of an image.
+	// Subresource's allow the image view to view only a part of an image.
 	imageViewCreateInfo.subresourceRange.aspectMask = aspectFlags;			// Which aspect of image to view (e.g. COLOR_BIT for viewing color)
 	imageViewCreateInfo.subresourceRange.baseMipLevel = 0;					// Start mipmap level to view from
 	imageViewCreateInfo.subresourceRange.levelCount = 1;					// Number of mipmap levels to view
@@ -25,12 +25,12 @@ VkImageView VkImageHelpers::CreateImageView(const VkRef& vkRef, VkImage image, V
 
 	// Create image view and return it.
 	VkImageView imageView;
-	LOG_VKRESULT(vkCreateImageView(vkRef.logDevice, &imageViewCreateInfo, &vkRef.hostAllocator, &imageView));
+	LOG_VKRESULT(vkCreateImageView(vkRef.logDevice, &imageViewCreateInfo, &vkRef.hostAllocator, &imageView))
 
 	return imageView;
 }
 
-GpuImage VkImageHelpers::Create2DImage(const VkRef& vkRef, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkImageAspectFlags aspectFlags, VkMemoryPropertyFlags propFlags, GpuMemoryUsageTag gpuMemUsage)
+GpuImage VkImageHelpers::Create2DImage(const VkRef& vkRef, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkImageAspectFlags aspectFlags, GpuMemoryUsageTag gpuMemUsage)
 {
 	GpuImage gpuImage = {};
 	gpuImage.usageTag = gpuMemUsage;
@@ -39,7 +39,7 @@ GpuImage VkImageHelpers::Create2DImage(const VkRef& vkRef, VkExtent2D extent, Vk
 	VkImageCreateInfo imageCreateInfo = {};
 	imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 	imageCreateInfo.imageType = VK_IMAGE_TYPE_2D;					// Type of image (1D, 2D, or 3D)
-	imageCreateInfo.format = format;								// Format of image (VK_FORMAT_R8G8B8A8_UNORM/etc)
+	imageCreateInfo.format = format;								// Format of image (VK_FORMAT_R8G8B8A8_UNORM/etc.)
 	imageCreateInfo.extent.width = extent.width;					// Width of image extent
 	imageCreateInfo.extent.height = extent.height;					// Height of image extent
 	imageCreateInfo.extent.depth = 1;								// Depth of image (just 1, no 3D aspect)
@@ -57,7 +57,7 @@ GpuImage VkImageHelpers::Create2DImage(const VkRef& vkRef, VkExtent2D extent, Vk
 	// Ref to know how much memory was allocated
 	VmaAllocationInfo allocationInfo = {};
 
-	LOG_VKRESULT(vmaCreateImage(vkRef.vmaAllocator, &imageCreateInfo, &allocationCreateInfo, &gpuImage.image, &gpuImage.vmaAllocation, &allocationInfo));
+	LOG_VKRESULT(vmaCreateImage(vkRef.vmaAllocator, &imageCreateInfo, &allocationCreateInfo, &gpuImage.image, &gpuImage.vmaAllocation, &allocationInfo))
 
 	// Report to GpuMemoryTracker for accurate GPU memory usage
 	GpuMemoryTracker::AllocatedGpuMemory(gpuImage.usageTag, allocationInfo.size);

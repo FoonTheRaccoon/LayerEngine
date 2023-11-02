@@ -5,19 +5,19 @@
 #include "ImGuiManager.h"
 
 
-void SwapChain::CreateIntialSwapChain(VkRef& vkRef)
+void SwapChain::CreateInitialSwapChain(VkRef& vkRef)
 {
-	LOG_DEBUG("Creating Vulkan Swap Chain...");
+	LOG_DEBUG("Creating Vulkan Swap Chain...")
 
 	// Make sure the chosen buffer count is acceptable.
 	const u32 minImageCount = vkRef.phyDevice.surfaceCapabilities.minImageCount;
 	const u32 maxImageCount = vkRef.phyDevice.surfaceCapabilities.maxImageCount;
-	const u32 prefferedImageCount = vkRef.phyDevice.swapChainBufferCount;
-	ASSERT_TRUE(prefferedImageCount > minImageCount && prefferedImageCount < maxImageCount);
+	const u32 preferredImageCount = vkRef.phyDevice.swapChainBufferCount;
+	ASSERT_TRUE(preferredImageCount > minImageCount && preferredImageCount < maxImageCount)
 
 	CreateSwapChain(vkRef);
 
-	LOG_INFO("Created Vulkan Swap Chain");
+	LOG_INFO("Created Vulkan Swap Chain")
 }
 
 
@@ -53,7 +53,7 @@ void SwapChain::CreateSwapChain(VkRef& vkRef)
 	swapChainCreateInfo.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;				// Transform to perform on swapchain images. TODO: Check if android devices need a VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR pre-transform
 	swapChainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;					// How the image should blend with other images/windows that it occludes. 
 	swapChainCreateInfo.presentMode = vkRef.phyDevice.preferredPresentMode;					// Swapchain presentation mode
-	swapChainCreateInfo.clipped = VK_TRUE;													// Whether to clip parts of image not in view (e.g. behind another window, off screen, etc)
+	swapChainCreateInfo.clipped = VK_TRUE;													// Whether to clip parts of image not in view (e.g. behind another window, off-screen, etc.)
 	swapChainCreateInfo.oldSwapchain = oldSwapchain;										// Link to old swapchain being destroyed to hand over responsibilities (common case is screen resizing where you would destroy and recreate swapchain with every resize)
 
 
@@ -77,7 +77,7 @@ void SwapChain::CreateSwapChain(VkRef& vkRef)
 		swapChainCreateInfo.pQueueFamilyIndices = nullptr;
 	}
 
-	LOG_VKRESULT(vkCreateSwapchainKHR(vkRef.logDevice, &swapChainCreateInfo, &vkRef.hostAllocator, &m_SwapChain));
+	LOG_VKRESULT(vkCreateSwapchainKHR(vkRef.logDevice, &swapChainCreateInfo, &vkRef.hostAllocator, &m_SwapChain))
 
 	// Hold reference for later
 	m_SwapChainFormat = vkRef.phyDevice.preferredSurfaceFormat.format;
@@ -112,7 +112,7 @@ void SwapChain::CreateSwapChain(VkRef& vkRef)
 	{
 		vkDestroySwapchainKHR(vkRef.logDevice, oldSwapchain, &vkRef.hostAllocator);
 	}
-
+ 
 	// Update ImGui with new swapchain
 	ImGuiManager::CreateImGuiFrameBuffer(vkRef, m_SwapChainImages, m_SwapChainExtent);
 }
@@ -128,17 +128,14 @@ void SwapChain::DestroySwapChain(const VkRef& vkRef)
 void SwapChain::CheckForUnMinimize(VkRef& vkRef)
 {
 	int width, height;
-
-	if constexpr (GlobalConstants::bOnAndroid)
-	{
+    
+    #if LAYER_PLATFORM_ANDROID
 		// TODO: Add android implementation
-	}
-	else // GLFW
-	{
+    #else // GLFW
 		glfwGetFramebufferSize(vkRef.pWindow, &width, &height);
-	}
+    #endif
 
-	// Check if window is unminimized and create a new swap chain if it is.
+	// Check if window is un-minimized and create a new swap chain if it is.
 	if (width > 0 || height > 0)
 	{
 		m_bWindowMinimized = false;
@@ -146,28 +143,31 @@ void SwapChain::CheckForUnMinimize(VkRef& vkRef)
 	}
 }
 
-const u64 SwapChain::Size() const { return m_SwapChainImages.size(); }
+u64 SwapChain::Size() const
+{
+    return m_SwapChainImages.size();
+}
 
-const T_vector<SwapChainImage, MT_GRAPHICS> SwapChain::GetImages() const { return m_SwapChainImages; }
+T_vector<SwapChainImage, MT_GRAPHICS> SwapChain::GetImages() const
+{
+    return m_SwapChainImages;
+}
 
 VkExtent2D SwapChain::ChooseImageExtent(VkRef& vkRef)
 {
 	// Make it more readable
 	#define surfCap vkRef.phyDevice.surfaceCapabilities
 
-	LOG_VKRESULT(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(vkRef.phyDevice.handle, vkRef.surface, &surfCap));
+	LOG_VKRESULT(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(vkRef.phyDevice.handle, vkRef.surface, &surfCap))
 
 	int width, height;
-
-	if constexpr (GlobalConstants::bOnAndroid)
-	{
-		// TODO: Add android implementation
-	}
-	else // GLFW
-	{
-		glfwGetFramebufferSize(vkRef.pWindow, &width, &height);
-	}
-
+    
+    #if LAYER_PLATFORM_ANDROID
+        // TODO: Add android implementation
+    #else // GLFW
+        glfwGetFramebufferSize(vkRef.pWindow, &width, &height);
+    #endif
+    
 	VkExtent2D newExtent = {};
 	newExtent.width = static_cast<u32>(width);
 	newExtent.height = static_cast<u32>(height);

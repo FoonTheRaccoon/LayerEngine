@@ -1,9 +1,11 @@
 #pragma once
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "readability-redundant-declaration"
 #include "ThirdParty.h"
 
 enum MemoryTrackerTag : u32
 {
-	MT_UNKOWN,
+	MT_UNKNOWN,
 	MT_ENGINE,
 	MT_EDITOR,
 	MT_GAME,
@@ -27,7 +29,7 @@ enum MemoryTrackerTag : u32
 	MT_MAX_VALUE
 };
 
-// Overload new and delete ops to capture third party/miscellaneous allocations/frees assigning them to MT_UNKOWN
+// Overload new and delete ops to capture third party/miscellaneous allocations/frees assigning them to MT_UNKNOWN
 _Ret_notnull_ _Post_writable_byte_size_(size)
 void* __CRTDECL operator new(size_t _Size );
 
@@ -42,12 +44,12 @@ void __CRTDECL operator delete[](void* memory,size_t size) noexcept;
 namespace MemoryTracker
 {
 	// Initialize memory tracker and setup everything it needs
-	void InitilizeMemoryTracker();
+	void InitializeMemoryTracker();
 
-	// Called anytime host memory is allocated so we can update the relevant tracking info.
+	// Called anytime host memory is allocated, so we can update the relevant tracking info.
 	void AllocatedHostMemory(MemoryTrackerTag tag, u64 sizeOfAlloc);
 
-	// Called anytime host memory is deallocated so we can update the relevant tracking info.
+	// Called anytime host memory is deallocated, so we can update the relevant tracking info.
 	void DeallocatedHostMemory(MemoryTrackerTag tag, u64 sizeOfAlloc);
 
 	// Add the current host memory usage to the log file
@@ -60,26 +62,33 @@ struct MemoryTrackerAllocator
 {
 	using value_type = TYPE;
 
-	MemoryTrackerAllocator(MemoryTrackerTag tag = MT_UNKOWN) : m_Tag(tag) { if (tag >= MT_MAX_VALUE || tag < 0) m_Tag = MT_UNKOWN; }
+	explicit MemoryTrackerAllocator(MemoryTrackerTag tag = MT_UNKNOWN)
+    : m_Tag(tag)
+    {
+        if (tag >= MT_MAX_VALUE) m_Tag = MT_UNKNOWN;
+    }
+    
 	template<typename U>
-	MemoryTrackerAllocator(const MemoryTrackerAllocator<U>& other) : m_Tag(other.m_Tag) { if (other.m_Tag >= MT_MAX_VALUE || other.m_Tag < 0) m_Tag = MT_UNKOWN; }
+	explicit MemoryTrackerAllocator(const MemoryTrackerAllocator<U>& other)
+    : m_Tag(other.m_Tag)
+    {
+        if (other.m_Tag >= MT_MAX_VALUE || other.m_Tag < 0) m_Tag = MT_UNKNOWN;
+    }
 
 	TYPE* allocate(size_t size)
 	{
 		const size_t bytes = size * sizeof(TYPE);
 		MemoryTracker::AllocatedHostMemory(m_Tag, bytes);
-		// LOG_DEBUG("Memory Allocation Made!");
 		return static_cast<TYPE*>(malloc(bytes));
 	}
 	void deallocate(TYPE* memory, size_t size) noexcept
 	{
 		const size_t bytes = size * sizeof(TYPE);
 		MemoryTracker::DeallocatedHostMemory(m_Tag, bytes);
-		// LOG_DEBUG("Memory Deallocation Made!\n");
 		free(memory);
 	}
 
-	MemoryTrackerTag m_Tag = MT_UNKOWN;
+	MemoryTrackerTag m_Tag = MT_UNKNOWN;
 };
 
 template<typename TYPE> 
@@ -90,3 +99,5 @@ inline bool operator!=(MemoryTrackerAllocator<TYPE> const&, MemoryTrackerAllocat
 
 
 
+
+#pragma clang diagnostic pop

@@ -15,5 +15,5 @@ LayerTimer::~LayerTimer()
 
 	snprintf(msgBuffer, U8_MAX - 1, "Duration Of Timer \"%s\": %f ms", m_Label, duration.count());
 
-	LOG_BENCHMARK(msgBuffer);
+	LOG_BENCHMARK(msgBuffer)
 }

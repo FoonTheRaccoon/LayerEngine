@@ -7,23 +7,20 @@
 
 void Engine::StartUp(const char* appName, u32 winWidth, u32 winHeight)
 {
-	LOG_DEBUG("Starting Engine...");
-
-	EngineUtilities::InitilizeEngineUtilities();
-
-	if constexpr (GlobalConstants::bOnAndroid)
-	{ 
+	LOG_DEBUG("Starting Engine...")
+    
+    EngineUtilities::InitializeEngineUtilities();
+    
+    #if LAYER_PLATFORM_ANDROID
 		// TODO: Create Android implementation
-	}
-	else // GLFW
-	{ 
+    #else // GLFW
 		glfwSetErrorCallback(LoggingCallbacks::glfw_error_callback);
 		glfwInit();
-	}
+    #endif
+    
+    RenderManager::Initialize(appName, winWidth, winHeight);
 
-	RenderManager::Initilize(appName, winWidth, winHeight);
-
-	LOG_INFO("Engine Started");
+	LOG_INFO("Engine Started")
 }
 
 void Engine::Run()
@@ -38,20 +35,17 @@ void Engine::Run()
 
 void Engine::Shutdown()
 {
-	LOG_DEBUG("Shutting Engine Down...");
+	LOG_DEBUG("Shutting Engine Down...")
 
 	RenderManager::Shutdown();
+    
+    #if LAYER_PLATFORM_ANDROID
+        // TODO: Create Android implementation
+    #else // GLFW
+        glfwTerminate();
+    #endif
 
-	if constexpr (GlobalConstants::bOnAndroid)
-	{
-		// TODO: Create Android implementation
-	}
-	else // GLFW
-	{
-		glfwTerminate();
-	}
-
-	LOG_INFO("Engine Shut Down");
+	LOG_INFO("Engine Shut Down")
 
 	EngineUtilities::ShutdownEngineUtilities();
 }

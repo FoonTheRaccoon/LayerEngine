@@ -1,3 +1,7 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "google-explicit-constructor"
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "bugprone-forwarding-reference-overload"
 #pragma once
 #include "ThirdParty.h"
 #include "MemoryTracker.h"
@@ -63,14 +67,14 @@ struct T_basicString : std::basic_string<TYPE, std::char_traits<TYPE>, MemoryTra
 	T_basicString(iterator it1, iterator it2) :									stringCtor(it1, it2, MemoryTrackerAllocator<TYPE>{MT_STRING}) {}
 	T_basicString(std::initializer_list<TYPE> init) :							stringCtor(init, MemoryTrackerAllocator<TYPE>{MT_STRING}) {}
 
-	// Custom ctor that takes in any number of c_Strs/T_strings and appends them together
+	// Custom ctor that takes in any number of c strings/T_strings and appends them together
 	template<typename... Args>
 	T_basicString(const auto& first, const Args&... args) : stringCtor(first, MemoryTrackerAllocator<TYPE>{MT_STRING})
 	{
 		this->AppendMany(args...);
 	}
 
-	// Takes in any number of c_strs/T_strings and appends them in the order they are passed
+	// Takes in any number of c strings/T_strings and appends them in the order they are passed
 	template<typename... Args>
 	void AppendMany(const auto& first, const Args&... args)
 	{
@@ -98,3 +102,6 @@ typedef T_basicString<char>		T_string;
 typedef T_basicString<w16>		T_wstring;
 
 
+
+#pragma clang diagnostic pop
+#pragma clang diagnostic pop

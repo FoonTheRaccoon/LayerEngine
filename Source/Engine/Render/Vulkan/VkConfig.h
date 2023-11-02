@@ -80,7 +80,7 @@ namespace VkConfig
 		VK_FORMAT_A2R10G10B10_UNORM_PACK32
 	};
 
-	// -RENDERPASS/SWAPCHAIN COLOR FORMATS-
+	// -RENDER-PASS/SWAPCHAIN COLOR FORMATS-
 	constexpr std::array<VkFormat, 5> desiredColorAttachment32BitPackFormats = {							
 		VK_FORMAT_R8G8B8A8_UNORM,																// Arc Not Supported
 		VK_FORMAT_B8G8R8A8_UNORM,			// No STORAGE_IMAGE |								// Arc Not Supported
@@ -102,7 +102,7 @@ namespace VkConfig
 	};
 
 
-	// -RENDERPASS DEPTH STENCIL FORMATS-
+	// -RENDER-PASS DEPTH STENCIL FORMATS-
 	constexpr std::array<VkFormat, 2> desiredDepthStencilAttachmentFormats = {
 		VK_FORMAT_D24_UNORM_S8_UINT,
 		VK_FORMAT_D32_SFLOAT_S8_UINT
